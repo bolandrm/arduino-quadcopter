@@ -20,26 +20,34 @@ void IMU::init() {
   calibrate_gyro();
 }
 
-void IMU::update_sensor_values() {
+bool IMU::update_sensor_values() {
+  bool updated = false;
+
   if ((millis() - accel_update_timer) > 20) {
     update_accel();
     accel_update_timer = millis();
+    updated = true;
   }
 
   if ((micros() - gyro_update_timer) > 2000) {
     update_gyro();
     gyro_update_timer = micros();
+    updated = true;
   }
 
-  combine();
+  if (updated) {
+    combine();
 
-	x_angle = comp_angle_x - 180 + ROLL_OFFSET;
-	y_angle = comp_angle_y - 180 + PITCH_OFFSET;
-	z_angle = gyro_z_angle;
+    x_angle = comp_angle_x - 180 + ROLL_OFFSET;
+    y_angle = comp_angle_y - 180 + PITCH_OFFSET;
+    z_angle = gyro_z_angle;
 
-	x_rate = gyro_x_rate;
-	y_rate = gyro_y_rate;
-	z_rate = gyro_z_rate;
+    x_rate = gyro_x_rate;
+    y_rate = gyro_y_rate;
+    z_rate = gyro_z_rate;
+  }
+
+  return updated;
 }
 
 void IMU::update_gyro() {

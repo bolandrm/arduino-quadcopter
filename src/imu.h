@@ -18,7 +18,7 @@ class IMU {
     IMU();
 
     void init();
-    void update_sensor_values();
+    bool update_sensor_values();
 
     float x_angle, y_angle, z_angle;
     float x_rate, y_rate, z_rate;
