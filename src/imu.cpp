@@ -18,22 +18,10 @@ void IMU::init()
 
 	mpu9050.setDLPFMode(3);  //Set Low Pass filter 
 
-	alpha_gyro = 0.995;
-	c = (1-alpha_gyro)*1;
+	gyro_part = 0.995;
+	acc_part = 1 - gyro_part;
 
-  mpu9050.getRotation(&gyro_x_in, &gyro_y_in, &gyro_z_in);
-  mpu9050.getAcceleration(&acc_x_in, &acc_y_in, &acc_z_in);
-
-	accXangle = (atan2(acc_x_in,acc_z_in)+PI)*RAD_TO_DEG;
-	accYangle = (atan2(acc_y_in,acc_z_in)+PI)*RAD_TO_DEG;
-
-	gyroXangle = accXangle;
-	gyroYangle = accYangle;
-	gyroZangle = 0;
-
-	compAngleX = accXangle;
-	compAngleY = accYangle;
-
+  setup_initial_angles();
   calibrate_gyro();
 }
 
@@ -48,36 +36,34 @@ bool IMU::processAngles(float angles[],float rates[])
 	accZf = filterZ.update(acc_z_in);
 
 	// Angular rates provided by gyro
-	gyroXrate = (float) (gyro_x_in-gyro_x_offset)/131.0; //140 µsec on Arduino MEGA
-	gyroYrate = -((float) (gyro_y_in-gyro_y_offset)/131.0);
-	gyroZrate = ((float) (gyro_z_in-gyro_z_offset)/131.0);
+	gyro_x_rate = (float) (gyro_x_in - gyro_x_offset) / 131.0;
+	gyro_y_rate = (float) -1 * (gyro_y_in - gyro_y_offset) / 131.0;
+	gyro_z_rate = (float) (gyro_z_in - gyro_z_offset) / 131.0;
 
 	//Angle provided by accelerometer
-	//Time taken: 400 µsec on Arduino MEGA
-	accYangle = (atan2(accXf,accZf)+PI)*RAD_TO_DEG; // 
-	accXangle = (atan2(accYf,accZf)+PI)*RAD_TO_DEG;
+	acc_y_angle = (atan2(accXf,accZf)+PI)*RAD_TO_DEG; // 
+	acc_x_angle = (atan2(accYf,accZf)+PI)*RAD_TO_DEG;
 
 	//Integration of gyro rates to get the angles
-	gyroXangle += gyroXrate*(float)(micros()-timer)/1000000;
-	gyroYangle += gyroYrate*(float)(micros()-timer)/1000000;
-	gyroZangle += gyroZrate*(float)(micros()-timer)/1000000;
+	gyro_x_angle += gyro_x_rate*(float)(micros()-timer)/1000000;
+	gyro_y_angle += gyro_y_rate*(float)(micros()-timer)/1000000;
+	gyro_z_angle += gyro_z_rate*(float)(micros()-timer)/1000000;
 
 	//Angle calculation through Complementary filter
-	//Time taken: 200 µsec on Arduino MEGA
 	dt = (float)(micros()-timer)/1000000.0;
-	compAngleX = alpha_gyro*(compAngleX+(gyroXrate*dt))   +   c*accXangle;
-	compAngleY = alpha_gyro*(compAngleY+(gyroYrate*dt))  +   c*accYangle;
+	compAngleX = gyro_part*(compAngleX+(gyro_x_rate*dt))   +   acc_part*acc_x_angle;
+	compAngleY = gyro_part*(compAngleY+(gyro_y_rate*dt))  +   acc_part*acc_y_angle;
 
 	timer = micros();
 
 	//45 deg rotation for roll and pitch (depending how your IMU is fixed to your quad)
 	angles[0]=  -rac22* compAngleX + rac22*compAngleY + ROLL_OFFSET;
 	angles[1]=  -rac22* compAngleX - rac22*compAngleY +2*rac22*PI*RAD_TO_DEG + PITCH_OFFSET;
-	angles[2]=  gyroZangle;
+	angles[2]=  gyro_z_angle;
 
-	rates[0]=   -  rac22* gyroXrate + rac22*gyroYrate;
-	rates[1]= - rac22* gyroXrate - rac22*gyroYrate;
-	rates[2]=  gyroZrate;
+	rates[0]=   -  rac22* gyro_x_rate + rac22*gyro_y_rate;
+	rates[1]= - rac22* gyro_x_rate - rac22*gyro_y_rate;
+	rates[2]=  gyro_z_rate;
 }
 
 void IMU::calibrate_gyro() {
@@ -98,4 +84,19 @@ void IMU::calibrate_gyro() {
 	gyro_x_offset = sX/n;
 	gyro_y_offset = sY/n;
 	gyro_z_offset = sZ/n;
+}
+
+void IMU::setup_initial_angles() {
+  mpu9050.getRotation(&gyro_x_in, &gyro_y_in, &gyro_z_in);
+  mpu9050.getAcceleration(&acc_x_in, &acc_y_in, &acc_z_in);
+
+	acc_x_angle = (atan2(acc_x_in,acc_z_in)+PI)*RAD_TO_DEG;
+	acc_y_angle = (atan2(acc_y_in,acc_z_in)+PI)*RAD_TO_DEG;
+
+	gyro_x_angle = acc_x_angle;
+	gyro_y_angle = acc_y_angle;
+	gyro_z_angle = 0;
+
+	compAngleX = acc_x_angle;
+	compAngleY = acc_y_angle;
 }
