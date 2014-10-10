@@ -8,7 +8,7 @@ Filter::Filter(){
 }
 
 float Filter::update(float input) {
-	xv[0] = xv[1];
+  xv[0] = xv[1];
   xv[1] = xv[2];
   xv[2] = xv[3];
   xv[3] = xv[4];
@@ -17,9 +17,9 @@ float Filter::update(float input) {
   xv[6] = xv[7];
   xv[7] = xv[8];
 
-	xv[8] = input * inv_gain;
+  xv[8] = input * inv_gain;
 
-	yv[0] = yv[1];
+  yv[0] = yv[1];
   yv[1] = yv[2];
   yv[2] = yv[3];
   yv[3] = yv[4];
@@ -28,7 +28,7 @@ float Filter::update(float input) {
   yv[6] = yv[7];
   yv[7] = yv[8];
 
-	yv[8] = (xv[0] + xv[8])
+  yv[8] = (xv[0] + xv[8])
           + 8 * (xv[1] + xv[7])
           + 28 * (xv[2] + xv[6])
           + 56 * (xv[3] + xv[5])
