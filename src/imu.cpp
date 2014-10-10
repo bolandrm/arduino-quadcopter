@@ -1,3 +1,6 @@
+// Much of this was adapted from:
+// https://github.com/RomainGoussault/quadcopter
+
 #include "IMU.h"
 
 IMU::IMU() {}

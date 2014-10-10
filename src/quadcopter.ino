@@ -20,28 +20,6 @@ void loop() {
     Serial.print(" x angle: "); Serial.print(imu.x_angle);
     Serial.print(" y angle: "); Serial.print(imu.y_angle);
     Serial.print(" loop_time (hz): "); Serial.print(1000000/loop_time);
-
-    // Serial.print(" x rate: "); Serial.print(imu.gyro_x_rate);
-    // Serial.print(" y rate: "); Serial.print(imu.gyro_y_rate);
-    // Serial.print(" z rate: "); Serial.print(imu.gyro_z_rate);
-    // Serial.print(" x gyro: "); Serial.print(imu.gyro_angle_x);
-    // Serial.print(" y gyro: "); Serial.print(imu.gyro_angle_y);
-
-    // Serial.print(" x accel: "); Serial.print(imu.accel_x);
-    // Serial.print(" y accel: "); Serial.print(imu.accel_y);
-
-    // Serial.print(" x angle: "); Serial.print(imu.angle_x);
-    // Serial.print(" y angle: "); Serial.print(imu.angle_y);
-
-    // // Serial.print(" x rate: "); Serial.print(imu.gyro_x_rate);
-    // // Serial.print(" y rate: "); Serial.print(imu.gyro_y_rate);
-    // // Serial.print(" z rate: "); Serial.print(imu.gyro_z_rate);
-    // Serial.print(" x gyro: "); Serial.print(imu.gyro_angle_x);
-    // Serial.print(" y gyro: "); Serial.print(imu.gyro_angle_y);
-
-    // Serial.print(" x accel: "); Serial.print(imu.accel_x);
-    // Serial.print(" y accel: "); Serial.print(imu.accel_y);
-
     Serial.println();
 
     counter = 0;
