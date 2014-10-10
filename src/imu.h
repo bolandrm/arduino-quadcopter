@@ -1,35 +1,53 @@
 #ifndef IMU_h
 #define IMU_h
 
-#define COMPLEMENTARY_RATIO 0.995
-
+#include <Arduino.h>
 #include "I2Cdev.h"
 #include "MPU6050.h"
+#include "Filter.h"
+
+#define rac22 0.7071
+#define ROLL_OFFSET 0
+#define PITCH_OFFSET 0
+#define YAW_OFFSET 0
 
 class IMU {
   public:
     IMU();
 
     void init();
-    void update_sensor_values();
-
-    float gyro_x_rate, gyro_y_rate, gyro_z_rate;
-    float gyro_angle_x, gyro_angle_y, gyro_angle_z;
-    int16_t accel_x, accel_y, accel_z;
-    float angle_x, angle_y;
+    bool processAngles(float angles[],float rates[] );
 
   private:
-    MPU6050 mpu6050;
-
     void calibrate_gyro();
-    void update_gyro();
-    void update_accel();
-    void combine();
 
-    uint32_t gyro_update_timer, accel_update_timer, combination_update_timer;
+    int16_t acc_x_in, acc_y_in, acc_z_in;
+    int16_t gyro_x_in, gyro_y_in, gyro_z_in;
 
-    int16_t gyro_x, gyro_y, gyro_z;
-    int16_t gyro_x_offset, gyro_y_offset, gyro_z_offset;
+    float accXangle, accYangle, accZangle; // Angle calculate using the accelerometer
+    float gyroXangle, gyroYangle, gyroZangle; // Angle calculate using the gyro
+    float compAngleX, compAngleY;
+
+    MPU6050 mpu9050;
+    uint32_t timer;
+    float gyro_x_offset, gyro_y_offset, gyro_z_offset;
+
+    float gyroXrate ;
+    float gyroYrate ;
+    float gyroZrate;
+
+    float accXf;
+    float accYf;
+    float accZf;
+
+    Filter filterX;
+    Filter filterY;
+    Filter filterZ;
+
+    float alpha_gyro;
+    float c;
+    float dt;
+    char StrAnglesvib[7];
 };
 
 #endif

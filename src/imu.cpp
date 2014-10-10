@@ -1,93 +1,101 @@
-#include "imu.h"
+#include "IMU.h"
 
 IMU::IMU() {}
 
-void IMU::init() {
+void IMU::init()
+{
   Fastwire::setup(800, true);
 
-	Serial.println("Initializing mpu6050...");
-  mpu6050.initialize();
+	// Initialize device
+	Serial.println("Initializing I2C devices...");
+	mpu9050.initialize();
 
 	// Check connection
 	Serial.println("Testing device connections...");
-	Serial.println(mpu6050.testConnection() ? "MPU6050 connection successful" : "MPU6050 connection failed");
+	Serial.println(mpu9050.testConnection() ? "MPU6050 connection successful" : "MPU6050 connection failed");
 
-  delay(100); // Wait for sensor to stabilize
-  mpu6050.setDLPFMode(3); //Set Low Pass filter
+	delay(100); // Wait for sensor to stabilize
+
+	mpu9050.setDLPFMode(3);  //Set Low Pass filter 
+
+	alpha_gyro = 0.995;
+	c = (1-alpha_gyro)*1;
+
+  mpu9050.getRotation(&gyro_x_in, &gyro_y_in, &gyro_z_in);
+  mpu9050.getAcceleration(&acc_x_in, &acc_y_in, &acc_z_in);
+
+	accXangle = (atan2(acc_x_in,acc_z_in)+PI)*RAD_TO_DEG;
+	accYangle = (atan2(acc_y_in,acc_z_in)+PI)*RAD_TO_DEG;
+
+	gyroXangle = accXangle;
+	gyroYangle = accYangle;
+	gyroZangle = 0;
+
+	compAngleX = accXangle;
+	compAngleY = accYangle;
 
   calibrate_gyro();
-
-  combination_update_timer = millis();
 }
 
-void IMU::update_sensor_values() {
-  if ((micros() - gyro_update_timer) > 2000) {
-    update_gyro();
-    gyro_update_timer = micros();
-  }
+bool IMU::processAngles(float angles[],float rates[])
+{
+  mpu9050.getRotation(&gyro_x_in, &gyro_y_in, &gyro_z_in);
+  mpu9050.getAcceleration(&acc_x_in, &acc_y_in, &acc_z_in);
 
-  if ((millis() - accel_update_timer) > 20) {
-    update_accel();
-    accel_update_timer = millis();
-  }
+	//Filter
+	accXf = filterX.update(acc_x_in);
+	accYf = filterY.update(acc_y_in);
+	accZf = filterZ.update(acc_z_in);
 
-  combine();
-}
+	// Angular rates provided by gyro
+	gyroXrate = (float) (gyro_x_in-gyro_x_offset)/131.0; //140 µsec on Arduino MEGA
+	gyroYrate = -((float) (gyro_y_in-gyro_y_offset)/131.0);
+	gyroZrate = ((float) (gyro_z_in-gyro_z_offset)/131.0);
 
-void IMU::combine() {
-  uint32_t timer = micros();
-  float dt = (float) (timer - combination_update_timer) / 1000000.0;
+	//Angle provided by accelerometer
+	//Time taken: 400 µsec on Arduino MEGA
+	accYangle = (atan2(accXf,accZf)+PI)*RAD_TO_DEG; // 
+	accXangle = (atan2(accYf,accZf)+PI)*RAD_TO_DEG;
 
-  float comp_gyro = COMPLEMENTARY_RATIO;
-  float comp_accel = 1.0 - comp_gyro;
+	//Integration of gyro rates to get the angles
+	gyroXangle += gyroXrate*(float)(micros()-timer)/1000000;
+	gyroYangle += gyroYrate*(float)(micros()-timer)/1000000;
+	gyroZangle += gyroZrate*(float)(micros()-timer)/1000000;
 
-  gyro_angle_x += gyro_x_rate * dt;
-  gyro_angle_y += gyro_y_rate * dt;
-  gyro_angle_z += gyro_z_rate * dt;
+	//Angle calculation through Complementary filter
+	//Time taken: 200 µsec on Arduino MEGA
+	dt = (float)(micros()-timer)/1000000.0;
+	compAngleX = alpha_gyro*(compAngleX+(gyroXrate*dt))   +   c*accXangle;
+	compAngleY = alpha_gyro*(compAngleY+(gyroYrate*dt))  +   c*accYangle;
 
-  angle_x = comp_gyro * (angle_x + gyro_x_rate * dt) + comp_accel * accel_x;
-  angle_y = comp_gyro * (angle_y + gyro_y_rate * dt) + comp_accel * accel_y;
+	timer = micros();
 
-  combination_update_timer = timer;
-}
+	//45 deg rotation for roll and pitch (depending how your IMU is fixed to your quad)
+	angles[0]=  -rac22* compAngleX + rac22*compAngleY + ROLL_OFFSET;
+	angles[1]=  -rac22* compAngleX - rac22*compAngleY +2*rac22*PI*RAD_TO_DEG + PITCH_OFFSET;
+	angles[2]=  gyroZangle;
 
-void IMU::update_gyro() {
-  mpu6050.getRotation(&gyro_x, &gyro_y, &gyro_z);
-
-  gyro_x_rate = (float) (gyro_x - gyro_x_offset) / 131.0;
-	gyro_y_rate = (float) -1 * (gyro_y - gyro_y_offset) / 131.0;
-	gyro_z_rate = (float) (gyro_z - gyro_z_offset) / 131.0;
-}
-
-void IMU::update_accel() {
-  int16_t accel_x_in, accel_y_in, accel_z_in;
-  mpu6050.getAcceleration(&accel_x_in, &accel_y_in, &accel_z_in);
-
-  accel_x = (atan2(accel_x_in, accel_z_in) + PI) * RAD_TO_DEG;
-	accel_y = (atan2(accel_y_in, accel_z_in) + PI) * RAD_TO_DEG;
+	rates[0]=   -  rac22* gyroXrate + rac22*gyroYrate;
+	rates[1]= - rac22* gyroXrate - rac22*gyroYrate;
+	rates[2]=  gyroZrate;
 }
 
 void IMU::calibrate_gyro() {
-  uint16_t n = 200;
+	//Gyro Calibration: Rough guess of the gyro drift at startup
+	float n = 200;
 
-  float sX = 0.0;
-  float sY = 0.0;
-  float sZ = 0.0;
+	float sX = 0.0;
+	float sY = 0.0;
+	float sZ = 0.0;
 
-  for (uint16_t i = 0; i < n; i++)
-  {
-    mpu6050.getRotation(&gyro_x, &gyro_y, &gyro_z);
-    sX += mpu6050.getRotationX();
-    sY += mpu6050.getRotationY();
-    sZ += mpu6050.getRotationZ();
-  }
+	for (int i = 0; i < n; i++)
+	{
+		sX += mpu9050.getRotationX();
+		sY += mpu9050.getRotationY();
+		sZ += mpu9050.getRotationZ();
+	}
 
-  gyro_x_offset = sX / n;
-  gyro_y_offset = sY / n;
-  gyro_z_offset = sZ / n;
-
-  Serial.print("Setting offsets: x: "); Serial.print(gyro_x_offset);
-  Serial.print(" y: "); Serial.print(gyro_y_offset);
-  Serial.print(" z: "); Serial.print(gyro_z_offset);
-  Serial.println();
+	gyro_x_offset = sX/n;
+	gyro_y_offset = sY/n;
+	gyro_z_offset = sZ/n;
 }
