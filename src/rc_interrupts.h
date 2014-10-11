@@ -14,7 +14,7 @@ void calc_ch_4() { RemoteControl::calc_input(RC_CH4, RC_CH4_INPUT); }
 void calc_ch_5() { RemoteControl::calc_input(RC_CH5, RC_CH5_INPUT); }
 void calc_ch_6() { RemoteControl::calc_input(RC_CH6, RC_CH6_INPUT); }
 
-void bind_rc_interrupts(RemoteControl rc) {
+void bind_rc_interrupts() {
   PCintPort::attachInterrupt(RC_CH1_INPUT, calc_ch_1, CHANGE);
   PCintPort::attachInterrupt(RC_CH2_INPUT, calc_ch_2, CHANGE);
   PCintPort::attachInterrupt(RC_CH3_INPUT, calc_ch_3, CHANGE);

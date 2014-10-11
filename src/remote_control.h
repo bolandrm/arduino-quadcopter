@@ -4,6 +4,7 @@
 #include <Arduino.h>
 
 #define  NUM_CHANNELS    6
+#define  RC_TIMEOUT      1000  // milliseconds
 
 #define  RC_CH1_IN_MIN   1154
 #define  RC_CH1_IN_MAX   1898
@@ -53,15 +54,15 @@ class RemoteControl {
   public:
     RemoteControl();
 
-    void init();
     void read_values();
     int16_t get(int);
 
     static void calc_input(int, int);
 
   private:
-    static int32_t last_update_time;
+    void process_channel_value(int channel);
 
+    static uint32_t last_update_time;
     static int16_t rc_in_min[6];
     static int16_t rc_in_max[6];
     static int16_t rc_out_min[6];
@@ -69,6 +70,7 @@ class RemoteControl {
     static uint32_t rc_start[6];
     static volatile uint16_t rc_shared[6];
     static uint16_t rc_values[6];
+    uint16_t rc_out_values[6];
 };
 
 #endif
