@@ -55,12 +55,6 @@
 #define RC_POT_A    RC_CH5
 #define RC_POT_B    RC_CH6
 
-uint32_t rc_start[6];
-uint32_t rc_compare;
-
-volatile uint16_t rc_shared[6];
-volatile uint8_t rc_update_flags;
-volatile uint8_t rc_update_flags_shared;
 
 int16_t rc_in_min[] = { RC_CH1_IN_MIN, RC_CH2_IN_MIN, RC_CH3_IN_MIN,
                         RC_CH4_IN_MIN, RC_CH5_IN_MIN, RC_CH6_IN_MIN };
@@ -71,14 +65,13 @@ int16_t rc_out_min[] = { RC_CH1_OUT_MIN, RC_CH2_OUT_MIN, RC_CH3_OUT_MIN,
 int16_t rc_out_max[] = { RC_CH1_OUT_MAX, RC_CH2_OUT_MAX, RC_CH3_OUT_MAX,
                          RC_CH4_OUT_MAX, RC_CH5_OUT_MAX, RC_CH6_OUT_MAX };
 
-
 class RemoteControl {
-  private:
-    static uint16_t rc_values[6];
-
   public:
     RemoteControl();
+
     void read_values();
+    int16_t get(int);
+
     static void calc_input(int, int);
     static void calc_ch_1();
     static void calc_ch_2();
@@ -86,16 +79,20 @@ class RemoteControl {
     static void calc_ch_4();
     static void calc_ch_5();
     static void calc_ch_6();
-    static int16_t get(int);
+
+  private:
+    static uint32_t rc_start[6];
+    static volatile uint16_t rc_shared[6];
+    static uint16_t rc_values[6];
 };
 
 uint16_t RemoteControl::rc_values[] = {0};
+uint32_t RemoteControl::rc_start[] = {0};
+volatile uint16_t RemoteControl::rc_shared[] = {0};
 
 void RemoteControl::read_values() {
   noInterrupts();
   memcpy(rc_values, (const void *)rc_shared, sizeof(rc_shared));
-  rc_update_flags = rc_update_flags_shared;
-  rc_update_flags_shared = 0;
   interrupts();
 }
 
@@ -124,7 +121,7 @@ void RemoteControl::calc_input(int channel, int input_pin) {
   if (digitalRead(input_pin) == HIGH) {
     rc_start[channel] = micros();
   } else {
-    rc_compare = (uint16_t)(micros() - rc_start[channel]);
+    uint32_t rc_compare = (uint16_t)(micros() - rc_start[channel]);
     rc_shared[channel] = rc_compare;
   }
 }
