@@ -9,6 +9,8 @@ RemoteControl rc;
 
 int counter = 0;
 uint32_t loop_time;
+uint32_t loop_start_time;
+void debug_output();
 
 void setup() {
   Serial.begin(SERIAL_PORT_SPEED);
@@ -17,10 +19,14 @@ void setup() {
 }
 
 void loop() {
-  uint32_t loop_start_time = micros();
-
   while(!imu.update_sensor_values());
   rc.read_values();
+  debug_output();
+}
+
+void debug_output() {
+  loop_time = micros() - loop_start_time;
+  loop_start_time = micros();
 
   if (counter == 250) {
     Serial.print(" x angle: "); Serial.print(imu.x_angle);
@@ -35,6 +41,4 @@ void loop() {
   } else {
     counter += 1;
   }
-
-  loop_time = micros() - loop_start_time;
 }
