@@ -2,6 +2,7 @@
 
 #include "imu.h"
 #include "remote_control.h"
+#include "rc_interrupts.h"
 
 IMU imu;
 RemoteControl rc;
@@ -12,6 +13,8 @@ uint32_t loop_time;
 void setup() {
   Serial.begin(SERIAL_PORT_SPEED);
   imu.init();
+  rc.init();
+  bind_rc_interrupts(rc);
 }
 
 void loop() {
