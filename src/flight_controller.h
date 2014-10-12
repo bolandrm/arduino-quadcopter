@@ -28,6 +28,7 @@ class FlightController {
     void set_safety_mode();
     void reset_pids();
     void compute_pids();
+    void adjust_for_bounds();
     void compute_motor_outputs();
     void zero_motor_outputs();
     void set_motor_outputs();

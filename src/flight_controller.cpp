@@ -11,6 +11,9 @@ void FlightController::init(RemoteControl *_rc, IMU *_imu) {
     pid_outputs[i] = 0.0;
     pid_setpoints[i] = 0.0;
   }
+
+  roll_pid.SetMode(AUTOMATIC);
+  pitch_pid.SetMode(AUTOMATIC);
 }
 
 void FlightController::process(bool debug) {
@@ -21,7 +24,7 @@ void FlightController::process(bool debug) {
     adjust_pid_tuning();
     compute_pids();
     compute_motor_outputs();
-    //adjust_for_bounds();
+    adjust_for_bounds();
   } else {
     motors.command_all_off();
   }
@@ -39,6 +42,27 @@ void FlightController::set_safety_mode() {
     }
   } else {
     mode = UNARMED;
+  }
+}
+
+void FlightController::adjust_for_bounds() {
+  int16_t motor_fix = 0;
+  uint16_t motor_min = motors.outputs[0];
+  uint16_t motor_max = motors.outputs[0];
+
+  for(int i = 1; i < NUM_MOTORS; i++) {
+    if (motors.outputs[i] < motor_min) motor_min = motors.outputs[i];
+    if (motors.outputs[i] > motor_max) motor_max = motors.outputs[i];
+  }
+
+  if (motor_min < MOTOR_MIN) {
+    motor_fix = MOTOR_MIN - motor_min;
+  } else if (motor_max > MOTOR_MAX) {
+    motor_fix = MOTOR_MAX - motor_max;
+  }
+
+  for(int i = 1; i < NUM_MOTORS; i++) {
+    motors.outputs[i] += motor_fix;
   }
 }
 

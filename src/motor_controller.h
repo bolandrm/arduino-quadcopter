@@ -7,6 +7,7 @@
 
 #define MOTOR_SAFE_OFF 600
 #define MOTOR_MIN 1070
+#define MOTOR_MAX 1860
 
 #define NUM_MOTORS 4
 #define M1 0
@@ -22,7 +23,7 @@ class MotorController {
     void command_all_off();
     void command();
 
-    int16_t outputs[4];
+    uint16_t outputs[4];
 
   private:
     void zero_outputs();
