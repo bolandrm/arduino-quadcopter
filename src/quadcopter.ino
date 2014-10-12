@@ -18,13 +18,13 @@ void setup() {
   Serial.begin(SERIAL_PORT_SPEED);
   imu.init();
   bind_rc_interrupts();
-  flight_controller.init(rc);
+  flight_controller.init(&rc, &imu);
 }
 
 void loop() {
   while(!imu.update_sensor_values());
   rc.read_values();
-  flight_controller.process();
+  flight_controller.process(counter == 240);
   debug_output();
 }
 
