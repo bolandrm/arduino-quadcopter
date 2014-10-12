@@ -23,10 +23,10 @@ void FlightController::process(bool debug) {
     compute_motor_outputs();
     //adjust_for_bounds();
   } else {
-    zero_motor_outputs();
+    motors.command_all_off();
   }
 
-  // command_motors();
+  motors.command();
 
   if (debug) { debug_output(); }
 }
@@ -42,22 +42,16 @@ void FlightController::set_safety_mode() {
   }
 }
 
-void FlightController::zero_motor_outputs() {
-  for (int i = 0; i < NUM_MOTORS; i++) {
-    motor_outputs[i] = MOTOR_SAFE_OFF;
-  }
-}
-
 void FlightController::compute_motor_outputs() {
   double m1_fr_out = rc->get(RC_THROTTLE) + pid_outputs[PID_ROLL] + pid_outputs[PID_PITCH];
   double m2_bl_out = rc->get(RC_THROTTLE) - pid_outputs[PID_ROLL] - pid_outputs[PID_PITCH];
   double m3_fl_out = rc->get(RC_THROTTLE) - pid_outputs[PID_ROLL] + pid_outputs[PID_PITCH];
   double m4_br_out = rc->get(RC_THROTTLE) + pid_outputs[PID_ROLL] - pid_outputs[PID_PITCH];
 
-  motor_outputs[M1] = (int16_t)(m1_fr_out + 0.5);
-  motor_outputs[M2] = (int16_t)(m2_bl_out + 0.5);
-  motor_outputs[M3] = (int16_t)(m3_fl_out + 0.5);
-  motor_outputs[M4] = (int16_t)(m4_br_out + 0.5);
+  motors.outputs[M1] = (int16_t)(m1_fr_out + 0.5);
+  motors.outputs[M2] = (int16_t)(m2_bl_out + 0.5);
+  motors.outputs[M3] = (int16_t)(m3_fl_out + 0.5);
+  motors.outputs[M4] = (int16_t)(m4_br_out + 0.5);
 }
 
 void FlightController::reset_pids() {

@@ -3,21 +3,15 @@
 
 #include "remote_control.h"
 #include "imu.h"
+#include "motor_controller.h"
 #include "PID_v1.h"
 
 #define NUM_PIDS 2
-#define NUM_MOTORS 4
 #define PID_ROLL 0
 #define PID_PITCH 1
 #define ARMED 1
 #define UNARMED 0
-#define MOTOR_SAFE_OFF 600
-#define MOTOR_MIN 1070
 #define RC_THROTTLE_CUTOFF 800
-#define M1 0
-#define M2 1
-#define M3 2
-#define M4 3
 
 class FlightController {
   public:
@@ -43,11 +37,11 @@ class FlightController {
     RemoteControl *rc;
     IMU *imu;
     PID roll_pid, pitch_pid;
+    MotorController motors;
 
     double pid_inputs[2];
     double pid_outputs[2];
     double pid_setpoints[2];
-    double motor_outputs[4];
 };
 
 #endif
