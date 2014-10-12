@@ -42,7 +42,7 @@ bool IMU::update_sensor_values() {
     combine();
 
     x_angle = comp_angle_x - 180 + ROLL_OFFSET;
-    y_angle = comp_angle_y - 180 + PITCH_OFFSET;
+    y_angle = -1 * (comp_angle_y - 180 + PITCH_OFFSET);
     z_angle = gyro_z_angle;
 
     x_rate = gyro_x_rate;

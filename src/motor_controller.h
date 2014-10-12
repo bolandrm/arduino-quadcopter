@@ -19,9 +19,9 @@
 
 class MotorController {
   public:
-    MotorController();
     void command_all_off();
     void command();
+    void init();
 
     uint16_t outputs[4];
 

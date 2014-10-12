@@ -1,10 +1,10 @@
 #include "motor_controller.h"
 
 void MotorController::command() {
-  OCR3C = outputs[M1] * 2;
-  OCR3A = outputs[M2] * 2;
-  OCR4A = outputs[M3] * 2;
-  OCR4B = outputs[M4] * 2;
+  // OCR3C = outputs[M1] * 2;
+  // OCR3A = outputs[M2] * 2;
+  // OCR4A = outputs[M3] * 2;
+  // OCR4B = outputs[M4] * 2;
 }
 
 void MotorController::command_all_off() {
@@ -18,7 +18,7 @@ void MotorController::zero_outputs() {
   }
 }
 
-MotorController::MotorController() {
+void MotorController::init() {
   zero_outputs();
 
   pinMode(3, OUTPUT);  // motor 1

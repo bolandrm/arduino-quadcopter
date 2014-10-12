@@ -14,6 +14,8 @@ void FlightController::init(RemoteControl *_rc, IMU *_imu) {
 
   roll_pid.SetMode(AUTOMATIC);
   pitch_pid.SetMode(AUTOMATIC);
+
+  motors.init();
 }
 
 void FlightController::process(bool debug) {
@@ -87,8 +89,8 @@ void FlightController::reset_pids() {
 
 void FlightController::adjust_pid_tuning() {
   double kp = rc->get(RC_POT_A) / 100.0;
-  double kd = 0; // 0.5 * rc.get(RC_POT_B) / 100.0;   // .015
-  double ki = 0; // 0.01;
+  double kd = 0.0; // 0.18; //0.5 * rc->get(RC_POT_B) / 100.0;
+  double ki = 0.5 * rc->get(RC_POT_B) / 100.0;
 
   roll_pid.SetTunings(kp, ki, kd);
   pitch_pid.SetTunings(kp, ki, kd);
@@ -116,6 +118,8 @@ void FlightController::debug_output() {
   Serial.print(" M3_out: "); Serial.print(motors.outputs[M3]);
   Serial.print(" M4_out: "); Serial.print(motors.outputs[M4]);
   Serial.print(" // kp: "); Serial.print(roll_pid.GetKp());
+  Serial.print(" // kd: "); Serial.print(roll_pid.GetKd());
+  Serial.print(" // ki: "); Serial.print(roll_pid.GetKi());
   Serial.println();
 }
 
