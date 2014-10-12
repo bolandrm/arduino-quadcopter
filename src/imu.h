@@ -12,8 +12,8 @@
 #define GYRO_PART 0.995
 #define ACC_PART (1.0 - GYRO_PART)
 
-#define ROLL_OFFSET 0.22
-#define PITCH_OFFSET 1.1
+#define ROLL_OFFSET 0.12
+#define PITCH_OFFSET 0.9
 #define YAW_OFFSET 0
 
 class IMU {

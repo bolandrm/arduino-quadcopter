@@ -19,10 +19,11 @@ void FlightController::init(RemoteControl *_rc, IMU *_imu) {
 void FlightController::process(bool debug) {
   set_safety_mode();
 
+  set_pid_output_limits();
+  adjust_pid_tuning();
+  compute_pids();
+
   if (mode == ARMED) {
-    set_pid_output_limits();
-    adjust_pid_tuning();
-    compute_pids();
     compute_motor_outputs();
     adjust_for_bounds();
   } else {
@@ -85,7 +86,7 @@ void FlightController::reset_pids() {
 }
 
 void FlightController::adjust_pid_tuning() {
-  double kp = 0; // 2 * rc.get(RC_POT_A) / 100.0;     // .92
+  double kp = rc->get(RC_POT_A) / 100.0;
   double kd = 0; // 0.5 * rc.get(RC_POT_B) / 100.0;   // .015
   double ki = 0; // 0.01;
 
@@ -105,9 +106,16 @@ void FlightController::compute_pids() {
 }
 
 void FlightController::debug_output() {
-  Serial.print(" fc:x angle: "); Serial.print(imu->x_angle);
-  Serial.print(" fc:y angle: "); Serial.print(imu->y_angle);
-  Serial.print(" fc:throttle: "); Serial.print(rc->get(RC_THROTTLE));
+  Serial.print(" thrttl: "); Serial.print(rc->get(RC_THROTTLE));
+  Serial.print(" // x_act: "); Serial.print(imu->x_angle);
+  Serial.print(" x_tar: "); Serial.print(rc->get(RC_ROLL));
+  Serial.print(" // y_act: "); Serial.print(imu->y_angle);
+  Serial.print(" y_tar: "); Serial.print(rc->get(RC_PITCH));
+  Serial.print(" // M1_out: "); Serial.print(motors.outputs[M1]);
+  Serial.print(" M2_out: "); Serial.print(motors.outputs[M2]);
+  Serial.print(" M3_out: "); Serial.print(motors.outputs[M3]);
+  Serial.print(" M4_out: "); Serial.print(motors.outputs[M4]);
+  Serial.print(" // kp: "); Serial.print(roll_pid.GetKp());
   Serial.println();
 }
 

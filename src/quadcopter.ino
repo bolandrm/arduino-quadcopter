@@ -33,11 +33,6 @@ void debug_output() {
   loop_start_time = micros();
 
   if (counter == 250) {
-    Serial.print(" x angle: "); Serial.print(imu.x_angle);
-    Serial.print(" y angle: "); Serial.print(imu.y_angle);
-    Serial.print(" throttle: "); Serial.print(rc.get(RC_THROTTLE));
-    Serial.print(" roll: "); Serial.print(rc.get(RC_ROLL));
-    Serial.print(" pitch: "); Serial.print(rc.get(RC_PITCH));
     Serial.print(" loop_time (hz): "); Serial.print(1000000/loop_time);
     Serial.println();
 
