@@ -3,9 +3,11 @@
 #include "imu.h"
 #include "remote_control.h"
 #include "rc_interrupts.h"
+#include "flight_controller.h"
 
 IMU imu;
 RemoteControl rc;
+FlightController flight_controller;
 
 int counter = 0;
 uint32_t loop_time;
@@ -16,11 +18,13 @@ void setup() {
   Serial.begin(SERIAL_PORT_SPEED);
   imu.init();
   bind_rc_interrupts();
+  flight_controller.init(rc);
 }
 
 void loop() {
   while(!imu.update_sensor_values());
   rc.read_values();
+  flight_controller.process();
   debug_output();
 }
 
