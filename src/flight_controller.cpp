@@ -109,9 +109,9 @@ void FlightController::compute_pids() {
 
 void FlightController::debug_output() {
   Serial.print(" thrttl: "); Serial.print(rc->get(RC_THROTTLE));
-  Serial.print(" // x_act: "); Serial.print(imu->x_angle);
+  Serial.print(" // x_gyro: "); Serial.print(imu->x_rate);
   Serial.print(" x_tar: "); Serial.print(rc->get(RC_ROLL));
-  Serial.print(" // y_act: "); Serial.print(imu->y_angle);
+  Serial.print(" // y_gyro: "); Serial.print(imu->y_rate);
   Serial.print(" y_tar: "); Serial.print(rc->get(RC_PITCH));
   Serial.print(" // M1_out: "); Serial.print(motors.outputs[M1]);
   Serial.print(" M2_out: "); Serial.print(motors.outputs[M2]);

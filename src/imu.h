@@ -12,9 +12,12 @@
 #define GYRO_PART 0.995
 #define ACC_PART (1.0 - GYRO_PART)
 
-#define ROLL_OFFSET 0.12
-#define PITCH_OFFSET 0.9
-#define YAW_OFFSET 0
+#define ACCEL_X_OFFSET  146
+#define ACCEL_Y_OFFSET  -1335
+#define ACCEL_Z_OFFSET  1456
+#define GYRO_X_OFFSET 8
+#define GYRO_Y_OFFSET 67
+#define GYRO_Z_OFFSET -47
 
 class IMU {
   public:
@@ -27,7 +30,7 @@ class IMU {
     float x_rate, y_rate, z_rate;
 
   private:
-    void calibrate_gyro();
+    void set_offsets();
     void setup_initial_angles();
     void update_gyro();
     void update_accel();

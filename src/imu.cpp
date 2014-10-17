@@ -19,8 +19,9 @@ void IMU::init() {
   delay(100); // Wait for sensor to stabilize
   mpu9050.setDLPFMode(3);  //Set Low Pass filter 
 
+  set_offsets();
+
   setup_initial_angles();
-  calibrate_gyro();
 }
 
 bool IMU::update_sensor_values() {
@@ -41,8 +42,8 @@ bool IMU::update_sensor_values() {
   if (updated) {
     combine();
 
-    x_angle = comp_angle_x - 180 + ROLL_OFFSET;
-    y_angle = -1 * (comp_angle_y - 180 + PITCH_OFFSET);
+    x_angle = comp_angle_x - 180;
+    y_angle = -1 * (comp_angle_y - 180);
     z_angle = gyro_z_angle;
 
     x_rate = gyro_x_rate;
@@ -57,9 +58,9 @@ void IMU::update_gyro() {
   mpu9050.getRotation(&gyro_x_in, &gyro_y_in, &gyro_z_in);
 
   // Angular rates provided by gyro (131 is number from datasheet, dunno)
-  gyro_x_rate = (float) (gyro_x_in - gyro_x_offset) / 131.0;
-  gyro_y_rate = (float) -1 * (gyro_y_in - gyro_y_offset) / 131.0;
-  gyro_z_rate = (float) (gyro_z_in - gyro_z_offset) / 131.0;
+  gyro_x_rate = (float) gyro_x_in / 131.0;
+  gyro_y_rate = (float) -1 * gyro_y_in / 131.0;
+  gyro_z_rate = (float) gyro_z_in / 131.0;
 
   //Integration of gyro rates to get the angles
   gyro_x_angle += gyro_x_rate * (float)(micros() - gyro_update_timer) / 1000000;
@@ -87,25 +88,6 @@ void IMU::combine() {
   combination_update_timer = micros();
 }
 
-void IMU::calibrate_gyro() {
-  //Gyro Calibration: Rough guess of the gyro drift at startup
-  int n = 200;
-
-  float sX = 0.0;
-  float sY = 0.0;
-  float sZ = 0.0;
-
-  for (int i = 0; i < n; i++) {
-    sX += mpu9050.getRotationX();
-    sY += mpu9050.getRotationY();
-    sZ += mpu9050.getRotationZ();
-  }
-
-  gyro_x_offset = sX/n;
-  gyro_y_offset = sY/n;
-  gyro_z_offset = sZ/n;
-}
-
 void IMU::setup_initial_angles() {
   mpu9050.getRotation(&gyro_x_in, &gyro_y_in, &gyro_z_in);
   mpu9050.getAcceleration(&acc_x_in, &acc_y_in, &acc_z_in);
@@ -119,4 +101,24 @@ void IMU::setup_initial_angles() {
 
   comp_angle_x = acc_x_angle;
   comp_angle_y = acc_y_angle;
+}
+
+void IMU::set_offsets() {
+  int16_t ax, ay, az,gx, gy, gz;
+  int mean_ax,mean_ay,mean_az,mean_gx,mean_gy,mean_gz,state=0;
+  int ax_offset,ay_offset,az_offset,gx_offset,gy_offset,gz_offset;
+
+  accelgyro.setXAccelOffset(0);
+  accelgyro.setYAccelOffset(0);
+  accelgyro.setZAccelOffset(0);
+  accelgyro.setXGyroOffset(0);
+  accelgyro.setYGyroOffset(0);
+  accelgyro.setZGyroOffset(0);
+
+  // mpu9050.setXAccelOffset(ACCEL_X_OFFSET);
+  // mpu9050.setYAccelOffset(ACCEL_Y_OFFSET);
+  // mpu9050.setZAccelOffset(ACCEL_Z_OFFSET);
+  // mpu9050.setXGyroOffset(GYRO_X_OFFSET);
+  // mpu9050.setYGyroOffset(GYRO_Y_OFFSET);
+  // mpu9050.setZGyroOffset(GYRO_Z_OFFSET);
 }
