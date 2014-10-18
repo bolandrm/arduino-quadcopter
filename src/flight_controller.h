@@ -13,6 +13,7 @@
 #define UNARMED 0
 #define RC_THROTTLE_CUTOFF 800
 #define CONTINUOUS 0
+#define INDOOR_SAFE_MOTOR_SPEED 1300
 
 class FlightController {
   public:
@@ -28,6 +29,7 @@ class FlightController {
     void set_pid_output_limits();
     void adjust_pid_tuning();
     void set_safety_mode();
+    void safety_check();
     void reset_pids();
     void compute_pids();
     void adjust_for_bounds();

@@ -37,9 +37,16 @@ void FlightController::process(bool debug) {
     motors.command_all_off();
   }
 
+  safety_check();
   motors.command();
 
   if (debug) { debug_output(); }
+}
+
+void FlightController::safety_check() {
+  for(int i = 0; i < NUM_MOTORS; i++) {
+    if (motors.outputs[i] > INDOOR_SAFE_MOTOR_SPEED) emergency_stop();
+  }
 }
 
 void FlightController::set_safety_mode() {
@@ -107,8 +114,8 @@ void FlightController::compute_pids() {
   pid_setpoints[PID_ROLL] = rc->get(RC_ROLL);
   pid_setpoints[PID_PITCH] = rc->get(RC_PITCH);
 
-  pid_inputs[PID_ROLL] = imu->x_angle;
-  pid_inputs[PID_PITCH] = imu->y_angle;
+  pid_inputs[PID_ROLL] = imu->x_rate;
+  pid_inputs[PID_PITCH] = imu->y_rate;
 
   roll_pid.Compute();
   pitch_pid.Compute();
