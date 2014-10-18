@@ -8,14 +8,13 @@
 #include "I2Cdev.h"
 #include "MPU6050.h"
 #include "Filter.h"
+#include "calibrator.h"
 
 #define GYRO_PART 0.995
 #define ACC_PART (1.0 - GYRO_PART)
 
 class IMU {
   public:
-    IMU();
-
     void init();
     bool update_sensor_values();
 
@@ -23,14 +22,13 @@ class IMU {
     float x_rate, y_rate, z_rate;
 
   private:
-    void set_offsets();
     void setup_initial_angles();
     void update_gyro();
     void update_accel();
     void combine();
-    void calibration();
 
     MPU6050 mpu9050;
+    Calibrator calibrator;
     Filter filter_x;
     Filter filter_y;
     Filter filter_z;
