@@ -14,8 +14,10 @@ void FlightController::init(RemoteControl *_rc, IMU *_imu) {
 
   roll_pid.SetMode(AUTOMATIC);
   pitch_pid.SetMode(AUTOMATIC);
-
-  // SET PID UPDATE RATE !!!!!!!!!
+  roll_pid.SetResolution(MICROS);
+  pitch_pid.SetResolution(MICROS);
+  roll_pid.SetSampleTime(CONTINUOUS);
+  pitch_pid.SetSampleTime(CONTINUOUS);
 
   motors.init();
 }
@@ -110,18 +112,21 @@ void FlightController::compute_pids() {
 }
 
 void FlightController::debug_output() {
-  Serial.print(" thrttl: "); Serial.print(rc->get(RC_THROTTLE));
-  Serial.print(" // x_gyro: "); Serial.print(imu->x_rate);
-  Serial.print(" x_tar: "); Serial.print(rc->get(RC_ROLL));
-  Serial.print(" // y_gyro: "); Serial.print(imu->y_rate);
-  Serial.print(" y_tar: "); Serial.print(rc->get(RC_PITCH));
-  Serial.print(" // M1_out: "); Serial.print(motors.outputs[M1]);
-  Serial.print(" M2_out: "); Serial.print(motors.outputs[M2]);
-  Serial.print(" M3_out: "); Serial.print(motors.outputs[M3]);
-  Serial.print(" M4_out: "); Serial.print(motors.outputs[M4]);
-  Serial.print(" // kp: "); Serial.print(roll_pid.GetKp());
-  Serial.print(" // kd: "); Serial.print(roll_pid.GetKd());
-  Serial.print(" // ki: "); Serial.print(roll_pid.GetKi());
+  Serial.print("x_gyro: "); Serial.print(imu->x_rate);
+  Serial.print(" \t y_gyro: "); Serial.print(imu->y_rate);
+  Serial.print(" \t x_ang: "); Serial.print(imu->x_angle);
+  Serial.print(" \t y_ang "); Serial.print(imu->y_angle);
+  Serial.println();
+  Serial.print("thrttl: "); Serial.print(rc->get(RC_THROTTLE));
+  Serial.print("\t x_tar: "); Serial.print(rc->get(RC_ROLL));
+  Serial.print("\t y_tar: "); Serial.print(rc->get(RC_PITCH));
+  Serial.print("\t M1_out: "); Serial.print(motors.outputs[M1]);
+  Serial.print("\t M2_out: "); Serial.print(motors.outputs[M2]);
+  Serial.print("\t M3_out: "); Serial.print(motors.outputs[M3]);
+  Serial.print("\t M4_out: "); Serial.print(motors.outputs[M4]);
+  Serial.print("\t kp: "); Serial.print(roll_pid.GetKp());
+  Serial.print("\t kd: "); Serial.print(roll_pid.GetKd());
+  Serial.print("\t ki: "); Serial.print(roll_pid.GetKi());
   Serial.println();
 }
 

@@ -12,6 +12,7 @@
 #define ARMED 1
 #define UNARMED 0
 #define RC_THROTTLE_CUTOFF 800
+#define CONTINUOUS 0
 
 class FlightController {
   public:

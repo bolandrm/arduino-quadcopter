@@ -33,7 +33,8 @@ void debug_output() {
   loop_start_time = micros();
 
   if (counter == 250) {
-    Serial.print(" loop_time (hz): "); Serial.print(1000000/loop_time);
+    Serial.print("loop_time (hz): "); Serial.print(1000000/loop_time);
+    Serial.println();
     Serial.println();
 
     counter = 0;
