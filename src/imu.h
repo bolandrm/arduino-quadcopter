@@ -12,13 +12,6 @@
 #define GYRO_PART 0.995
 #define ACC_PART (1.0 - GYRO_PART)
 
-#define ACCEL_X_OFFSET  146
-#define ACCEL_Y_OFFSET  -1335
-#define ACCEL_Z_OFFSET  1456
-#define GYRO_X_OFFSET 8
-#define GYRO_Y_OFFSET 67
-#define GYRO_Z_OFFSET -47
-
 class IMU {
   public:
     IMU();
@@ -35,6 +28,7 @@ class IMU {
     void update_gyro();
     void update_accel();
     void combine();
+    void calibration();
 
     MPU6050 mpu9050;
     Filter filter_x;

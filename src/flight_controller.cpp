@@ -15,6 +15,8 @@ void FlightController::init(RemoteControl *_rc, IMU *_imu) {
   roll_pid.SetMode(AUTOMATIC);
   pitch_pid.SetMode(AUTOMATIC);
 
+  // SET PID UPDATE RATE !!!!!!!!!
+
   motors.init();
 }
 
