@@ -17,6 +17,30 @@ Calibrator::Calibrator() {
   giro_deadzone=1;
 }
 
+void Calibrator::read_calibration(MPU6050 *mpu) {
+  ax_offset = eeprom_read_word(0);
+  ay_offset = eeprom_read_word((uint16_t *) (16 * 1 - 1));
+  az_offset = eeprom_read_word((uint16_t *) (16 * 2 - 1));
+  gx_offset = eeprom_read_word((uint16_t *) (16 * 3 - 1));
+  gy_offset = eeprom_read_word((uint16_t *) (16 * 4 - 1));
+  gz_offset = eeprom_read_word((uint16_t *) (16 * 5 - 1));
+
+  Serial.print("READING CALIBRATION: ");
+  Serial.print(ax_offset); Serial.print("\t");
+  Serial.print(ay_offset); Serial.print("\t");
+  Serial.print(az_offset); Serial.print("\t");
+  Serial.print(gx_offset); Serial.print("\t");
+  Serial.print(gy_offset); Serial.print("\t");
+  Serial.println(gz_offset);
+
+  mpu9050->setXAccelOffset(ax_offset);
+  mpu9050->setYAccelOffset(ay_offset);
+  mpu9050->setZAccelOffset(az_offset);
+  mpu9050->setXGyroOffset(gx_offset);
+  mpu9050->setYGyroOffset(gy_offset);
+  mpu9050->setZGyroOffset(gz_offset);
+}
+
 void Calibrator::calibrate(MPU6050 *mpu) {
   mpu9050 = mpu;
 
@@ -70,6 +94,14 @@ void Calibrator::calibrate(MPU6050 *mpu) {
 
     if (ready==6) break;
   }
+
+  Serial.print("WRITING CALIBRATION");
+  eeprom_write_word((uint16_t *) 0, ax_offset);
+  eeprom_write_word((uint16_t *) (16 * 1 - 1), ay_offset);
+  eeprom_write_word((uint16_t *) (16 * 2 - 1), az_offset);
+  eeprom_write_word((uint16_t *) (16 * 3 - 1), gx_offset);
+  eeprom_write_word((uint16_t *) (16 * 4 - 1), gy_offset);
+  eeprom_write_word((uint16_t *) (16 * 5 - 1), gz_offset);
 }
 
 void Calibrator::mean_sensors() {

@@ -17,7 +17,8 @@ void IMU::init() {
   delay(100); // Wait for sensor to stabilize
   mpu9050.setDLPFMode(3);  //Set Low Pass filter 
 
-  calibrator.calibrate(&mpu9050);
+  calibrator.read_calibration(&mpu9050);
+  //calibrator.calibrate(&mpu9050);
   setup_initial_angles();
 }
 
