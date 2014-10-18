@@ -20,6 +20,7 @@ class FlightController {
 
     void process(bool debug);
     void init(RemoteControl *, IMU *);
+    void emergency_stop();
 
     int mode;
 
@@ -44,6 +45,7 @@ class FlightController {
     double pid_inputs[2];
     double pid_outputs[2];
     double pid_setpoints[2];
+    bool emergency_stopped;
 };
 
 #endif

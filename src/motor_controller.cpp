@@ -1,14 +1,17 @@
 #include "motor_controller.h"
 
 void MotorController::command() {
-  OCR3C = 0;
-  OCR3A = 0;
-  OCR4A = 0;
-  OCR4B = 0;
-  // OCR3C = outputs[M1] * 2;
-  // OCR3A = outputs[M2] * 2;
-  // OCR4A = outputs[M3] * 2;
-  // OCR4B = outputs[M4] * 2;
+  #ifdef ALLOW_MOTORS
+    OCR3C = outputs[M1] * 2;
+    OCR3A = outputs[M2] * 2;
+    OCR4A = outputs[M3] * 2;
+    OCR4B = outputs[M4] * 2;
+  #else
+    OCR3C = 0;
+    OCR3A = 0;
+    OCR4A = 0;
+    OCR4B = 0;
+  #endif
 }
 
 void MotorController::command_all_off() {

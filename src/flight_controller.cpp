@@ -5,6 +5,7 @@ void FlightController::init(RemoteControl *_rc, IMU *_imu) {
   imu = _imu;
 
   mode = UNARMED;
+  emergency_stopped = false;
 
   for (int i = 0; i < NUM_PIDS; i++) {
     pid_inputs[i] = 0.0;
@@ -42,7 +43,9 @@ void FlightController::process(bool debug) {
 }
 
 void FlightController::set_safety_mode() {
-  if (rc->get(RC_THROTTLE) > RC_THROTTLE_CUTOFF) {
+  bool throttle_high = rc->get(RC_THROTTLE) > RC_THROTTLE_CUTOFF;
+
+  if (throttle_high && !emergency_stopped) {
     if (mode == UNARMED) {
       mode = ARMED;
       reset_pids();
@@ -133,6 +136,11 @@ void FlightController::debug_output() {
 void FlightController::set_pid_output_limits() {
   roll_pid.SetOutputLimits(-1000.0, 1000.0);
   pitch_pid.SetOutputLimits(-1000.0, 1000.0);
+}
+
+void FlightController::emergency_stop() {
+  emergency_stopped = true;
+  motors.command_all_off();
 }
 
 FlightController::FlightController() :
