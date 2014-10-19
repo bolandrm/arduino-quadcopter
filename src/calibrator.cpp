@@ -64,9 +64,9 @@ void Calibrator::calibrate(MPU6050 *mpu) {
   while (1){
     int ready=0;
 
-    mpu9050->setXAccelOffset(ax_offset);
-    mpu9050->setYAccelOffset(ay_offset);
-    mpu9050->setZAccelOffset(az_offset);
+    // mpu9050->setXAccelOffset(ax_offset);
+    // mpu9050->setYAccelOffset(ay_offset);
+    // mpu9050->setZAccelOffset(az_offset);
     mpu9050->setXGyroOffset(gx_offset);
     mpu9050->setYGyroOffset(gy_offset);
     mpu9050->setZGyroOffset(gz_offset);
@@ -74,14 +74,14 @@ void Calibrator::calibrate(MPU6050 *mpu) {
     mean_sensors();
     Serial.println("...");
 
-    if (abs(mean_ax)<=acel_deadzone) ready++;
-    else ax_offset=ax_offset-mean_ax/acel_deadzone;
+    // if (abs(mean_ax)<=acel_deadzone) ready++;
+    // else ax_offset=ax_offset-mean_ax/acel_deadzone;
 
-    if (abs(mean_ay)<=acel_deadzone) ready++;
-    else ay_offset=ay_offset-mean_ay/acel_deadzone;
+    // if (abs(mean_ay)<=acel_deadzone) ready++;
+    // else ay_offset=ay_offset-mean_ay/acel_deadzone;
 
-    if (abs(16384-mean_az)<=acel_deadzone) ready++;
-    else az_offset=az_offset+(16384-mean_az)/acel_deadzone;
+    // if (abs(16384-mean_az)<=acel_deadzone) ready++;
+    // else az_offset=az_offset+(16384-mean_az)/acel_deadzone;
 
     if (abs(mean_gx)<=giro_deadzone) ready++;
     else gx_offset=gx_offset-mean_gx/(giro_deadzone+1);
@@ -92,7 +92,8 @@ void Calibrator::calibrate(MPU6050 *mpu) {
     if (abs(mean_gz)<=giro_deadzone) ready++;
     else gz_offset=gz_offset-mean_gz/(giro_deadzone+1);
 
-    if (ready==6) break;
+    //if (ready==6) break;
+    if (ready==3) break;
   }
 
   Serial.print("WRITING CALIBRATION");

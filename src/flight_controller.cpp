@@ -14,10 +14,10 @@ void FlightController::init(RemoteControl *_rc, IMU *_imu) {
   }
 
   roll_pid.SetMode(AUTOMATIC);
-  pitch_pid.SetMode(AUTOMATIC);
   roll_pid.SetResolution(MICROS);
-  pitch_pid.SetResolution(MICROS);
   roll_pid.SetSampleTime(CONTINUOUS);
+  pitch_pid.SetMode(AUTOMATIC);
+  pitch_pid.SetResolution(MICROS);
   pitch_pid.SetSampleTime(CONTINUOUS);
 
   motors.init();
@@ -84,10 +84,10 @@ void FlightController::adjust_for_bounds() {
 }
 
 void FlightController::compute_motor_outputs() {
-  double m1_fr_out = rc->get(RC_THROTTLE) + pid_outputs[PID_ROLL] + pid_outputs[PID_PITCH];
-  double m2_bl_out = rc->get(RC_THROTTLE) - pid_outputs[PID_ROLL] - pid_outputs[PID_PITCH];
-  double m3_fl_out = rc->get(RC_THROTTLE) - pid_outputs[PID_ROLL] + pid_outputs[PID_PITCH];
-  double m4_br_out = rc->get(RC_THROTTLE) + pid_outputs[PID_ROLL] - pid_outputs[PID_PITCH];
+  double m1_fr_out = rc->get(RC_THROTTLE) - pid_outputs[PID_ROLL] - pid_outputs[PID_PITCH];
+  double m2_bl_out = rc->get(RC_THROTTLE) + pid_outputs[PID_ROLL] + pid_outputs[PID_PITCH];
+  double m3_fl_out = rc->get(RC_THROTTLE) + pid_outputs[PID_ROLL] - pid_outputs[PID_PITCH];
+  double m4_br_out = rc->get(RC_THROTTLE) - pid_outputs[PID_ROLL] + pid_outputs[PID_PITCH];
 
   motors.outputs[M1] = (int16_t)(m1_fr_out + 0.5);
   motors.outputs[M2] = (int16_t)(m2_bl_out + 0.5);
@@ -138,6 +138,9 @@ void FlightController::debug_output() {
   Serial.print("\t kd: "); Serial.print(roll_pid.GetKd());
   Serial.print("\t ki: "); Serial.print(roll_pid.GetKi());
   Serial.println();
+  Serial.print("roll_pid: "); Serial.print(pid_outputs[PID_ROLL]);
+  Serial.print("\t pitch_pid: "); Serial.print(pid_outputs[PID_PITCH]);
+  Serial.println();
 }
 
 void FlightController::set_pid_output_limits() {
@@ -154,9 +157,9 @@ FlightController::FlightController() :
    roll_pid(&pid_inputs[PID_ROLL],
             &pid_outputs[PID_ROLL],
             &pid_setpoints[PID_ROLL],
-            0.0, 0.0, 0.0, DIRECT),
+            0.0, 0.0, 0.0, REVERSE),
    pitch_pid(&pid_inputs[PID_PITCH],
              &pid_outputs[PID_PITCH],
              &pid_setpoints[PID_PITCH],
-             0.0, 0.0, 0.0, DIRECT)
+             0.0, 0.0, 0.0, REVERSE)
 {}

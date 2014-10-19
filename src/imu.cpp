@@ -17,8 +17,8 @@ void IMU::init() {
   delay(100); // Wait for sensor to stabilize
   mpu9050.setDLPFMode(3);  //Set Low Pass filter 
 
-  calibrator.read_calibration(&mpu9050);
-  //calibrator.calibrate(&mpu9050);
+  //calibrator.read_calibration(&mpu9050);
+  calibrator.calibrate(&mpu9050);
   setup_initial_angles();
 }
 
@@ -41,7 +41,7 @@ bool IMU::update_sensor_values() {
     combine();
 
     x_angle = comp_angle_x - 180;
-    y_angle = -1 * (comp_angle_y - 180);
+    y_angle = comp_angle_y - 180;
     z_angle = gyro_z_angle;
 
     x_rate = gyro_x_rate;
@@ -57,7 +57,7 @@ void IMU::update_gyro() {
 
   // Angular rates provided by gyro (131 is number from datasheet, dunno)
   gyro_x_rate = (float) gyro_x_in / 131.0;
-  gyro_y_rate = (float) -1 * gyro_y_in / 131.0;
+  gyro_y_rate = (float) gyro_y_in / 131.0;
   gyro_z_rate = (float) gyro_z_in / 131.0;
 
   //Integration of gyro rates to get the angles
