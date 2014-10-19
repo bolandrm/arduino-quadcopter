@@ -1,7 +1,7 @@
 #ifndef motor_controller_h
 #define motor_controller_h
 
-// #define ALLOW_MOTORS
+#define ALLOW_MOTORS
 
 #define PWM_FREQUENCY 400   // in Hz (300 other val)
 #define PWM_PRESCALER 8

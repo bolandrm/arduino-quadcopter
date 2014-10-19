@@ -6,14 +6,16 @@
 #include "motor_controller.h"
 #include "PID_v1.h"
 
-#define NUM_PIDS 2
-#define PID_ROLL 0
-#define PID_PITCH 1
+#define NUM_PIDS 4
+#define PID_ROLL_RATE 0
+#define PID_PITCH_RATE 1
+#define PID_ROLL_ANGLE 2
+#define PID_PITCH_ANGLE 3
 #define ARMED 1
 #define UNARMED 0
 #define RC_THROTTLE_CUTOFF 800
 #define CONTINUOUS 0
-#define INDOOR_SAFE_MOTOR_SPEED 1300
+#define INDOOR_SAFE_MOTOR_SPEED 1550
 
 class FlightController {
   public:
@@ -41,12 +43,12 @@ class FlightController {
 
     RemoteControl *rc;
     IMU *imu;
-    PID roll_pid, pitch_pid;
+    PID roll_rate_pid, pitch_rate_pid, roll_angle_pid, pitch_angle_pid;
     MotorController motors;
 
-    double pid_inputs[2];
-    double pid_outputs[2];
-    double pid_setpoints[2];
+    double pid_inputs[NUM_PIDS];
+    double pid_outputs[NUM_PIDS];
+    double pid_setpoints[NUM_PIDS];
     bool emergency_stopped;
 };
 
