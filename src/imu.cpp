@@ -20,18 +20,20 @@ void IMU::init() {
   //calibrator.read_calibration(&mpu9050);
   calibrator.calibrate(&mpu9050);
   setup_initial_angles();
+
+  delay(100); // Wait for sensor to stabilize
 }
 
 bool IMU::update_sensor_values() {
   bool updated = false;
 
-  if ((millis() - accel_update_timer) > 20) {
+  if ((millis() - accel_update_timer) > 20) {    // 50 hz
     update_accel();
     accel_update_timer = millis();
     updated = true;
   }
 
-  if ((micros() - gyro_update_timer) > 2000) {
+  if ((micros() - gyro_update_timer) > 2500) {   // 400 Hz
     update_gyro();
     gyro_update_timer = micros();
     updated = true;
@@ -99,4 +101,10 @@ void IMU::setup_initial_angles() {
 
   comp_angle_x = acc_x_angle;
   comp_angle_y = acc_y_angle;
+}
+
+void IMU::reset() {
+  // This does nothing ..
+  Serial.println("RESETING");
+  mpu9050.resetSensors();
 }

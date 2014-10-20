@@ -6,11 +6,15 @@
 #include "motor_controller.h"
 #include "PID_v1.h"
 
+#define RATE 0
+#define STABILIZE 1
+
 #define NUM_PIDS 4
 #define PID_ROLL_RATE 0
 #define PID_PITCH_RATE 1
 #define PID_ROLL_ANGLE 2
 #define PID_PITCH_ANGLE 3
+
 #define ARMED 1
 #define UNARMED 0
 #define RC_THROTTLE_CUTOFF 800
@@ -26,6 +30,7 @@ class FlightController {
     void emergency_stop();
 
     int mode;
+    int safety_mode;
 
   private:
     void set_pid_output_limits();
@@ -34,6 +39,8 @@ class FlightController {
     void safety_check();
     void reset_pids();
     void compute_pids();
+    void compute_angle_pids();
+    void compute_rate_pids();
     void adjust_for_bounds();
     void compute_motor_outputs();
     void zero_motor_outputs();
@@ -46,6 +53,8 @@ class FlightController {
     PID roll_rate_pid, pitch_rate_pid, roll_angle_pid, pitch_angle_pid;
     MotorController motors;
 
+    uint16_t gyro_freeze_counter;
+    float last_gyro_value;
     double pid_inputs[NUM_PIDS];
     double pid_outputs[NUM_PIDS];
     double pid_setpoints[NUM_PIDS];
