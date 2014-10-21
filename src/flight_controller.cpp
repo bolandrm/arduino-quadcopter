@@ -8,6 +8,7 @@ void FlightController::init(RemoteControl *_rc, IMU *_imu) {
   safety_mode = UNARMED;
   emergency_stopped = false;
   gyro_freeze_counter = 0;
+  logging = false;
 
   for (int i = 0; i < NUM_PIDS; i++) {
     pid_inputs[i] = 0.0;
@@ -16,20 +17,16 @@ void FlightController::init(RemoteControl *_rc, IMU *_imu) {
   }
 
   roll_rate_pid.SetMode(AUTOMATIC);
-  roll_rate_pid.SetResolution(MICROS);
-  roll_rate_pid.SetSampleTime(CONTINUOUS);
+  roll_rate_pid.SetSampleTime(4);
   //roll_rate_pid.SetITermMax(25.0);
   pitch_rate_pid.SetMode(AUTOMATIC);
-  pitch_rate_pid.SetResolution(MICROS);
-  pitch_rate_pid.SetSampleTime(CONTINUOUS);
+  pitch_rate_pid.SetSampleTime(4);
   //pitch_rate_pid.SetITermMax(25.0);
 
   roll_angle_pid.SetMode(AUTOMATIC);
-  roll_angle_pid.SetResolution(MICROS);
-  roll_angle_pid.SetSampleTime(CONTINUOUS);
+  roll_angle_pid.SetSampleTime(4);
   pitch_angle_pid.SetMode(AUTOMATIC);
-  pitch_angle_pid.SetResolution(MICROS);
-  pitch_angle_pid.SetSampleTime(CONTINUOUS);
+  pitch_angle_pid.SetSampleTime(4);
 
   motors.init();
 }
