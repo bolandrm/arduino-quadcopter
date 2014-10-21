@@ -18,9 +18,12 @@ void FlightController::init(RemoteControl *_rc, IMU *_imu) {
   roll_rate_pid.SetMode(AUTOMATIC);
   roll_rate_pid.SetResolution(MICROS);
   roll_rate_pid.SetSampleTime(CONTINUOUS);
+  //roll_rate_pid.SetITermMax(25.0);
   pitch_rate_pid.SetMode(AUTOMATIC);
   pitch_rate_pid.SetResolution(MICROS);
   pitch_rate_pid.SetSampleTime(CONTINUOUS);
+  //pitch_rate_pid.SetITermMax(25.0);
+
   roll_angle_pid.SetMode(AUTOMATIC);
   roll_angle_pid.SetResolution(MICROS);
   roll_angle_pid.SetSampleTime(CONTINUOUS);
@@ -93,9 +96,40 @@ void FlightController::reset_pids() {
 }
 
 void FlightController::adjust_pid_tuning() {
-  double kp = 2.0 * rc->get(RC_POT_A) / 100.0;
-  double kd = 0.4 * rc->get(RC_POT_B) / 100.0;
-  double ki = 0; // 0.5 * rc->get(RC_POT_B) / 100.0;
+  if (Serial.available() <= 0) return;
+  byte incomingByte = Serial.read();
+
+  double kp, kd, ki;
+
+  if (mode == STABILIZE) {
+    kp = roll_angle_pid.GetKp();
+    ki = roll_angle_pid.GetKi();
+    kd = roll_angle_pid.GetKd();
+  } else {
+    kp = roll_rate_pid.GetKp();
+    ki = roll_rate_pid.GetKi();
+    kd = roll_rate_pid.GetKd();
+  }
+
+  if (incomingByte == 'a') {
+    if (kp <= 0.05) kp = 0;
+    else kp -= 0.05;
+  } else if (incomingByte == 's') {
+    if (ki <= 0.05) ki = 0;
+    else ki -= 0.05;
+  } else if (incomingByte == 'd') {
+    if (kd <= 0.0001) kd = 0;
+    else kd -= 0.0001;
+  } else if (incomingByte == 'q') {
+    if (kp == 0) kp = 0.01;
+    else kp += 0.05;
+  } else if (incomingByte == 'w') {
+    if (ki == 0) ki = 0.01;
+    else ki += 0.05;
+  } else if (incomingByte == 'e') {
+    if (kd == 0) kd = 0.0001;
+    else kd += 0.0002;
+  }
 
   if (mode == STABILIZE) {
     roll_angle_pid.SetTunings(kp, ki, kd);
@@ -152,12 +186,12 @@ void FlightController::debug_output() {
   Serial.print("\t M2_out: "); Serial.print(motors.outputs[M2]);
   Serial.print("\t M3_out: "); Serial.print(motors.outputs[M3]);
   Serial.print("\t M4_out: "); Serial.print(motors.outputs[M4]);
-  Serial.print("\t <kp: "); Serial.print(pitch_angle_pid.GetKp());
-  Serial.print("\t <kd: "); Serial.print(pitch_angle_pid.GetKd());
-  Serial.print("\t <ki: "); Serial.print(pitch_angle_pid.GetKi());
-  Serial.print("\t rate_kp: "); Serial.print(pitch_angle_pid.GetKp());
-  Serial.print("\t rate_kd: "); Serial.print(pitch_angle_pid.GetKd());
-  Serial.print("\t rate_ki: "); Serial.print(pitch_angle_pid.GetKi());
+  Serial.print("\t <kp: "); Serial.print(pitch_angle_pid.GetKp(), 5);
+  Serial.print("\t <ki: "); Serial.print(pitch_angle_pid.GetKi(), 5);
+  Serial.print("\t <kd: "); Serial.print(pitch_angle_pid.GetKd(), 5);
+  Serial.print("\t rate_kp: "); Serial.print(pitch_rate_pid.GetKp(), 5);
+  Serial.print("\t rate_ki: "); Serial.print(pitch_rate_pid.GetKi(), 5);
+  Serial.print("\t rate_kd: "); Serial.print(pitch_rate_pid.GetKd(), 5);
   Serial.println();
   Serial.print("roll_rate_pid: "); Serial.print(pid_outputs[PID_ROLL_RATE]);
   Serial.print("\t pitch_rate_pid: "); Serial.print(pid_outputs[PID_PITCH_RATE]);
@@ -212,11 +246,11 @@ FlightController::FlightController() :
    roll_rate_pid(&pid_inputs[PID_ROLL_RATE],
                  &pid_outputs[PID_ROLL_RATE],
                  &pid_setpoints[PID_ROLL_RATE],
-                 0.34, 0.88, 0.0, REVERSE),
+                 1.59, 2.13, 0.0002, REVERSE),
    pitch_rate_pid(&pid_inputs[PID_PITCH_RATE],
                   &pid_outputs[PID_PITCH_RATE],
                   &pid_setpoints[PID_PITCH_RATE],
-                  0.34, 0.88, 0.0, REVERSE),
+                  1.59, 2.13, 0.0002, REVERSE),
    roll_angle_pid(&pid_inputs[PID_ROLL_ANGLE],
                   &pid_outputs[PID_ROLL_ANGLE],
                   &pid_setpoints[PID_ROLL_ANGLE],

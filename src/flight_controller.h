@@ -19,7 +19,7 @@
 #define UNARMED 0
 #define RC_THROTTLE_CUTOFF 800
 #define CONTINUOUS 0
-#define INDOOR_SAFE_MOTOR_SPEED 1550
+#define INDOOR_SAFE_MOTOR_SPEED 1650 //5000 //1800
 
 class FlightController {
   public:

@@ -57,6 +57,7 @@ class PID
     									  //   MILLIS sets the resolution to milliseconds.
     									  //   MICROS sets the resolution to microseconds.
 										  
+  void SetITermMax(double);
 										  
 										  
   //Display functions ****************************************************************
@@ -70,7 +71,7 @@ class PID
 	void Initialize();
 	unsigned long GetTime();    // * This will call either millis() or micros()
 	                            //   depending on the used resolution.
-	
+  double ITermMax;
 	double dispKp;				// * we'll hold on to the tuning parameters in user-entered 
 	double dispKi;				//   format for display purposes
 	double dispKd;				//

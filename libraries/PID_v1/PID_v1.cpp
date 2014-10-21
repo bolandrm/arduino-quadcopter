@@ -23,10 +23,10 @@
 PID::PID(double* Input, double* Output, double* Setpoint,
         double Kp, double Ki, double Kd, int ControllerDirection)
 {
-	
-    myOutput = Output;
-    myInput = Input;
-    mySetpoint = Setpoint;
+  ITermMax = 0.0;
+  myOutput = Output;
+  myInput = Input;
+  mySetpoint = Setpoint;
 	inAuto = false;
 	
 	PID::SetOutputLimits(0, 255);				//default output limit corresponds to 
@@ -68,6 +68,11 @@ bool PID::Compute()
 
       if(ITerm > outMax) ITerm= outMax;
       else if(ITerm < outMin) ITerm= outMin;
+
+      if (ITermMax != 0.0) {
+        if(ITerm > ITermMax) ITerm= ITermMax;
+        else if(ITerm < -ITermMax) ITerm= -ITermMax;
+      }
  
       /*Compute PID Output*/
       double output = kp * error + ITerm- kd * dInput;
@@ -226,6 +231,10 @@ void PID::SetResolution(int resolution)
   else
     secondsDivider = 1000000.0;
   lastTime = PID::GetTime()-SampleTime; // Update last time variable
+}
+
+void PID::SetITermMax(double iMax) {
+  ITermMax = iMax;
 }
 
 /* Status Funcions*************************************************************
