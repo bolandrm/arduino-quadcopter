@@ -8,13 +8,13 @@
 
 #define  RC_CH1_IN_MIN   1154
 #define  RC_CH1_IN_MAX   1898
-#define  RC_CH1_OUT_MIN  -40
-#define  RC_CH1_OUT_MAX  40
+#define  RC_CH1_OUT_MIN  -20
+#define  RC_CH1_OUT_MAX  20
 
 #define  RC_CH2_IN_MIN   1192
 #define  RC_CH2_IN_MAX   1824
-#define  RC_CH2_OUT_MIN  -40
-#define  RC_CH2_OUT_MAX  40
+#define  RC_CH2_OUT_MIN  -20
+#define  RC_CH2_OUT_MAX  20
 
 #define  RC_CH3_IN_MIN   1000
 #define  RC_CH3_IN_MAX   1812
