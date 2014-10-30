@@ -21,6 +21,7 @@ PID::PID(double* Input, double* Output, double* Setpoint,
         double Kp, double Ki, double Kd, int ControllerDirection)
 {
 	
+   ITermMax = 0.0;
     myOutput = Output;
     myInput = Input;
     mySetpoint = Setpoint;
@@ -28,7 +29,7 @@ PID::PID(double* Input, double* Output, double* Setpoint,
 	
 	PID::SetOutputLimits(0, 255);				//default output limit corresponds to 
 												//the arduino pwm limits
-
+  errorBand = 0;
     SampleTime = 100;							//default Controller Sample Time is 0.1 seconds
 
     PID::SetControllerDirection(ControllerDirection);
@@ -37,6 +38,9 @@ PID::PID(double* Input, double* Output, double* Setpoint,
     lastTime = millis()-SampleTime;				
 }
  
+ void PID::SetITermMax(double iMax) {
+   ITermMax = iMax;
+ }
  
 /* Compute() **********************************************************************
  *     This, as they say, is where the magic happens.  this function should be called
@@ -54,9 +58,20 @@ bool PID::Compute()
       /*Compute all the working error variables*/
 	  double input = *myInput;
       double error = *mySetpoint - input;
+
+      if (errorBand != 0 && (error < 0 && error > -errorBand || error > 0 && error < errorBand)) {
+        error = 0;
+      }
+
       ITerm+= (ki * error);
       if(ITerm > outMax) ITerm= outMax;
       else if(ITerm < outMin) ITerm= outMin;
+
+      if (ITermMax != 0.0) {
+        if(ITerm > ITermMax) ITerm= ITermMax;
+        else if(ITerm < -ITermMax) ITerm= -ITermMax;
+      }
+
       double dInput = (input - lastInput);
  
       /*Compute PID Output*/
@@ -75,6 +90,9 @@ bool PID::Compute()
 }
 
 
+void PID::SetErrorBand(float band) {
+  errorBand = band;
+}
 /* SetTunings(...)*************************************************************
  * This function allows the controller's dynamic performance to be adjusted. 
  * it's called automatically from the constructor, but tunings can also

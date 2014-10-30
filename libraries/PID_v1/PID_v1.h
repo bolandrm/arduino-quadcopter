@@ -29,6 +29,7 @@ class PID
 										  //it's likely the user will want to change this depending on
 										  //the application
 	
+   void SetITermMax(double);
 
 
   //available but not commonly used functions ********************************************************
@@ -42,7 +43,7 @@ class PID
     void SetSampleTime(int);              // * sets the frequency, in Milliseconds, with which 
                                           //   the PID calculation is performed.  default is 100
 										  
-										  
+    void SetErrorBand(float);
 										  
   //Display functions ****************************************************************
 	double GetKp();						  // These functions query the pid for interal values.
@@ -52,9 +53,11 @@ class PID
 	int GetDirection();					  //
 
   private:
+   double ITermMax;
 	void Initialize();
 	
 	double dispKp;				// * we'll hold on to the tuning parameters in user-entered 
+	double errorBand;				// * we'll hold on to the tuning parameters in user-entered 
 	double dispKi;				//   format for display purposes
 	double dispKd;				//
     
