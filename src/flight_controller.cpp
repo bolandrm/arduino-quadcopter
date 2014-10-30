@@ -4,7 +4,7 @@ void FlightController::init(RemoteControl *_rc, IMU *_imu) {
   rc = _rc;
   imu = _imu;
 
-  mode = RATE;
+  mode = STABILIZE;
   safety_mode = UNARMED;
   emergency_stopped = false;
   gyro_freeze_counter = 0;
@@ -18,11 +18,10 @@ void FlightController::init(RemoteControl *_rc, IMU *_imu) {
 
   roll_rate_pid.SetMode(AUTOMATIC);
   roll_rate_pid.SetSampleTime(4);
-  //roll_rate_pid.SetITermMax(25.0);
+  roll_rate_pid.SetErrorBand(0.1);
   pitch_rate_pid.SetMode(AUTOMATIC);
   pitch_rate_pid.SetSampleTime(4);
-  //pitch_rate_pid.SetITermMax(25.0);
-
+  pitch_rate_pid.SetErrorBand(0.1);
   roll_angle_pid.SetMode(AUTOMATIC);
   roll_angle_pid.SetSampleTime(4);
   pitch_angle_pid.SetMode(AUTOMATIC);
@@ -251,9 +250,9 @@ FlightController::FlightController() :
    roll_angle_pid(&pid_inputs[PID_ROLL_ANGLE],
                   &pid_outputs[PID_ROLL_ANGLE],
                   &pid_setpoints[PID_ROLL_ANGLE],
-                  0.0, 0.0, 0.0, DIRECT),
+                  0.977, 0.229, 0.0, REVERSE),
    pitch_angle_pid(&pid_inputs[PID_PITCH_ANGLE],
                    &pid_outputs[PID_PITCH_ANGLE],
                    &pid_setpoints[PID_PITCH_ANGLE],
-                   0.0, 0.0, 0.0, REVERSE)
+                   0.997, 0.229, 0.0, REVERSE)
 {}

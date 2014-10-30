@@ -12,6 +12,7 @@
 
 #define GYRO_PART 0.995
 #define ACC_PART (1.0 - GYRO_PART)
+#define ALPHA 0.9
 
 class IMU {
   public:

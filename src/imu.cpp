@@ -42,12 +42,12 @@ bool IMU::update_sensor_values() {
   if (updated) {
     combine();
 
-    x_angle = comp_angle_x - 180;
+    x_angle = -1 * (comp_angle_x - 180);
     y_angle = comp_angle_y - 180;
     z_angle = gyro_z_angle;
 
-    x_rate = gyro_x_rate;
-    y_rate = gyro_y_rate;
+    x_rate = ALPHA * gyro_x_rate + (1-ALPHA) * x_rate;
+    y_rate = ALPHA * gyro_y_rate + (1-ALPHA) * y_rate;
     z_rate = gyro_z_rate;
   }
 
@@ -98,6 +98,12 @@ void IMU::setup_initial_angles() {
   gyro_x_angle = acc_x_angle;
   gyro_y_angle = acc_y_angle;
   gyro_z_angle = 0;
+
+  // Angular rates provided by gyro (131 is number from datasheet, dunno)
+  gyro_x_rate = (float) gyro_x_in / 131.0;
+  gyro_y_rate = (float) gyro_y_in / 131.0;
+  x_rate = gyro_x_rate;
+  y_rate = gyro_y_rate;
 
   comp_angle_x = acc_x_angle;
   comp_angle_y = acc_y_angle;
