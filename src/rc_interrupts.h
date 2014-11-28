@@ -1,11 +1,11 @@
 #include <PinChangeInt.h>
 
-#define  RC_CH1_INPUT  A10
-#define  RC_CH2_INPUT  A11
-#define  RC_CH3_INPUT  A12
-#define  RC_CH4_INPUT  A13
-#define  RC_CH5_INPUT  A14
-#define  RC_CH6_INPUT  A15
+#define  RC_CH1_INPUT  A0
+#define  RC_CH2_INPUT  A1
+#define  RC_CH3_INPUT  A2
+#define  RC_CH4_INPUT  A4
+#define  RC_CH5_INPUT  7
+#define  RC_CH6_INPUT  8
 
 void calc_ch_1() { RemoteControl::calc_input(RC_CH1, RC_CH1_INPUT); }
 void calc_ch_2() { RemoteControl::calc_input(RC_CH2, RC_CH2_INPUT); }

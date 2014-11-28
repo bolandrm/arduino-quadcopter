@@ -4,7 +4,7 @@ void FlightController::init(RemoteControl *_rc, IMU *_imu) {
   rc = _rc;
   imu = _imu;
 
-  mode = STABILIZE;
+  mode = RATE;
   safety_mode = UNARMED;
   emergency_stopped = false;
   gyro_freeze_counter = 0;
