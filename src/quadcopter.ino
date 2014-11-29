@@ -25,7 +25,6 @@ void loop() {
   //while(!imu.update_sensor_values());
   rc.read_values();
   //flight_controller.process(counter == 240);
-
   debug_output();
 }
 
