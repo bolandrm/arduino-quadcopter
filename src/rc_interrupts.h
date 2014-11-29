@@ -3,7 +3,7 @@
 #define  RC_CH1_INPUT  A0
 #define  RC_CH2_INPUT  A1
 #define  RC_CH3_INPUT  A2
-#define  RC_CH4_INPUT  A4
+#define  RC_CH4_INPUT  A3
 #define  RC_CH5_INPUT  7
 #define  RC_CH6_INPUT  8
 
