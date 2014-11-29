@@ -6,12 +6,17 @@
 
 #include <Arduino.h>
 #include "MPULib.h"
-#include "Filter.h"
-//#include "calibrator.h"
+#include "calibrator.h"
 
-#define GYRO_PART 0.995
+#define GYRO_PART 0.95
 #define ACC_PART (1.0 - GYRO_PART)
 #define ALPHA 0.9
+#define GYRO_X_OFFSET 0.0;
+#define GYRO_Y_OFFSET 0.0;
+#define GYRO_Z_OFFSET 0.0;
+#define ACCEL_X_OFFSET -12;
+#define ACCEL_Y_OFFSET 0;
+#define ACCEL_Z_OFFSET 0;
 
 class IMU {
   public:
@@ -21,6 +26,9 @@ class IMU {
 
     float x_angle, y_angle, z_angle;
     float x_rate, y_rate, z_rate;
+
+    int16_t acc_x_in, acc_y_in, acc_z_in;
+
   private:
     void setup_initial_angles();
     void update_gyro();
@@ -28,12 +36,8 @@ class IMU {
     void combine();
 
     MPULib mpu;
-    //Calibrator calibrator;
-    Filter filter_x;
-    Filter filter_y;
-    Filter filter_z;
+    Calibrator calibrator;
 
-    int16_t acc_x_in, acc_y_in, acc_z_in;
     float gyro_x_in, gyro_y_in, gyro_z_in;
 
     float acc_x_angle, acc_y_angle;

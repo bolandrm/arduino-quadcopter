@@ -14,7 +14,7 @@ void IMU::init() {
   delay(100); // Wait for sensor to stabilize
 
   //calibrator.read_calibration(&mpu9050);
-  //calibrator.calibrate(&gyro);
+  //calibrator.calibrate(&mpu);
   setup_initial_angles();
 
   delay(100); // Wait for sensor to stabilize
@@ -53,9 +53,9 @@ bool IMU::update_sensor_values() {
 void IMU::update_gyro() {
   mpu.getGyroData(&gyro_x_in, &gyro_y_in, &gyro_z_in);
 
-  gyro_x_rate = gyro_x_in;
-  gyro_y_rate = gyro_y_in;
-  gyro_z_rate = gyro_z_in;
+  gyro_x_rate = gyro_x_in + GYRO_X_OFFSET;
+  gyro_y_rate = gyro_y_in + GYRO_Y_OFFSET;
+  gyro_z_rate = gyro_z_in + GYRO_Z_OFFSET;
 
   //Integration of gyro rates to get the angles
   gyro_x_angle += gyro_x_rate * (float)(micros() - gyro_update_timer) / 1000000;
@@ -66,12 +66,16 @@ void IMU::update_gyro() {
 void IMU::update_accel() {
   mpu.getAxlData(&acc_x_in, &acc_y_in, &acc_z_in);
 
-  float acc_x_filtered = filter_x.update(acc_x_in);
-  float acc_y_filtered = filter_y.update(acc_y_in);
-  float acc_z_filtered = filter_z.update(acc_z_in);
+  acc_x_in = acc_x_in + ACCEL_X_OFFSET;
+  acc_y_in = acc_y_in + ACCEL_Y_OFFSET;
+  acc_z_in = acc_z_in + ACCEL_Z_OFFSET;
 
-  acc_y_angle = (atan2(acc_x_filtered, acc_z_filtered) + PI) * RAD_TO_DEG;
-  acc_x_angle = (atan2(acc_y_filtered, acc_z_filtered) + PI) * RAD_TO_DEG;
+  float acc_x_filtered = ALPHA * acc_x_in + (1-ALPHA) * acc_x_filtered;
+  float acc_y_filtered = ALPHA * acc_y_in + (1-ALPHA) * acc_y_filtered;
+  float acc_z_filtered = ALPHA * acc_z_in + (1-ALPHA) * acc_z_filtered;
+
+  acc_x_angle = (atan2(acc_x_filtered, acc_z_filtered) + PI) * RAD_TO_DEG;
+  acc_y_angle = (atan2(acc_y_filtered, acc_z_filtered) + PI) * RAD_TO_DEG;
 }
 
 void IMU::combine() {

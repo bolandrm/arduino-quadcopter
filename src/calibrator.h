@@ -12,7 +12,8 @@ class Calibrator {
     Calibrator();
     void calibrate(MPULib *);
     //void read_calibration(MPU6050 *);
-    int16_t ax_offset,ay_offset,az_offset,gx_offset,gy_offset,gz_offset;
+    int16_t ax_offset,ay_offset,az_offset;
+    float gx_offset,gy_offset,gz_offset;
 
   private:
     void mean_sensors();

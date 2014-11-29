@@ -14,7 +14,7 @@ Calibrator::Calibrator() {
 
   // Gyro error allowed, make it lower to get more precision,
   // but sketch may not converge  (default:1)
-  giro_deadzone=1;
+  giro_deadzone=0.8;
 }
 
 // void Calibrator::read_calibration(MPU6050 *mpu) {
@@ -50,9 +50,9 @@ void Calibrator::calibrate(MPULib *mpu_in) {
   // gyro->setXGyroOffset(0);
   // gyro->setYGyroOffset(0);
   // gyro->setZGyroOffset(0);
-  gx_offset = 0;
-  gy_offset = 0;
-  gz_offset = 0;
+  gx_offset = 0.0;
+  gy_offset = 0.0;
+  gz_offset = 0.0;
 
   mean_sensors();
 
@@ -60,9 +60,9 @@ void Calibrator::calibrate(MPULib *mpu_in) {
   ay_offset=-mean_ay/8;
   az_offset=-mean_az/8;
 
-  gx_offset=-mean_gx/4;
-  gy_offset=-mean_gy/4;
-  gz_offset=-mean_gz/4;
+  gx_offset=-mean_gx/0.1;
+  gy_offset=-mean_gy/0.1;
+  gz_offset=-mean_gz/0.1;
 
   while (1){
     int ready=0;

@@ -43,7 +43,12 @@ void debug_output() {
     Serial.print(" \t y_gyro: "); Serial.print(imu.y_rate);
     Serial.print(" \t x_ang: "); Serial.print(imu.x_angle);
     Serial.print(" \t y_ang "); Serial.print(imu.y_angle);
-  Serial.println();
+    Serial.println();
+
+    Serial.print("x_ang_raw: "); Serial.print(imu.acc_x_in);
+    Serial.print(" \t y_ang_raw: "); Serial.print(imu.acc_y_in);
+    Serial.print(" \t z_ang_raw "); Serial.print(imu.acc_z_in);
+
     Serial.println();
     Serial.println();
 
