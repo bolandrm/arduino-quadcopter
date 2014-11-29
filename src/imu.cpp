@@ -2,23 +2,22 @@
 // https://github.com/RomainGoussault/quadcopter
 
 #include "IMU.h"
+#include "Wire.h"
 
 void IMU::init() {
-  Fastwire::setup(800, true);
+  Wire.begin();
+  TWBR = 10;  // setup i2c to run at 444 kHz
 
   // Initialize device
   Serial.println("Initializing I2C devices...");
-  mpu9050.initialize();
+  mpu.init();
 
   // Check connection
-  Serial.println("Testing device connections...");
-  Serial.println(mpu9050.testConnection() ? "MPU6050 connection successful" : "MPU6050 connection failed");
 
   delay(100); // Wait for sensor to stabilize
-  mpu9050.setDLPFMode(3);  //Set Low Pass filter 
 
   //calibrator.read_calibration(&mpu9050);
-  calibrator.calibrate(&mpu9050);
+  //calibrator.calibrate(&gyro);
   setup_initial_angles();
 
   delay(100); // Wait for sensor to stabilize
@@ -33,7 +32,7 @@ bool IMU::update_sensor_values() {
     updated = true;
   }
 
-  if ((micros() - gyro_update_timer) > 2500) {   // 400 Hz
+  if ((micros() - gyro_update_timer) > 1300) {   // ~800 Hz
     update_gyro();
     gyro_update_timer = micros();
     updated = true;
@@ -55,12 +54,11 @@ bool IMU::update_sensor_values() {
 }
 
 void IMU::update_gyro() {
-  mpu9050.getRotation(&gyro_x_in, &gyro_y_in, &gyro_z_in);
+  mpu.getGyroData(&gyro_x_in, &gyro_y_in, &gyro_z_in);
 
-  // Angular rates provided by gyro (131 is number from datasheet, dunno)
-  gyro_x_rate = (float) gyro_x_in / 131.0;
-  gyro_y_rate = (float) gyro_y_in / 131.0;
-  gyro_z_rate = (float) gyro_z_in / 131.0;
+  gyro_x_rate = gyro_x_in;
+  gyro_y_rate = gyro_y_in;
+  gyro_z_rate = gyro_z_in;
 
   //Integration of gyro rates to get the angles
   gyro_x_angle += gyro_x_rate * (float)(micros() - gyro_update_timer) / 1000000;
@@ -69,7 +67,7 @@ void IMU::update_gyro() {
 }
 
 void IMU::update_accel() {
-  mpu9050.getAcceleration(&acc_x_in, &acc_y_in, &acc_z_in);
+  //mpu9050.getAcceleration(&acc_x_in, &acc_y_in, &acc_z_in);
 
   float acc_x_filtered = filter_x.update(acc_x_in);
   float acc_y_filtered = filter_y.update(acc_y_in);
@@ -89,28 +87,28 @@ void IMU::combine() {
 }
 
 void IMU::setup_initial_angles() {
-  mpu9050.getRotation(&gyro_x_in, &gyro_y_in, &gyro_z_in);
-  mpu9050.getAcceleration(&acc_x_in, &acc_y_in, &acc_z_in);
+  //mpu9050.getRotation(&gyro_x_in, &gyro_y_in, &gyro_z_in);
+  //gyro.getAngularVelocity(&gyro_x_in, &gyro_y_in, &gyro_z_in);
+  //mpu9050.getAcceleration(&acc_x_in, &acc_y_in, &acc_z_in);
 
-  acc_x_angle = (atan2(acc_x_in, acc_z_in) + PI) * RAD_TO_DEG;
-  acc_y_angle = (atan2(acc_y_in, acc_z_in) + PI) * RAD_TO_DEG;
+  // acc_x_angle = (atan2(acc_x_in, acc_z_in) + PI) * RAD_TO_DEG;
+  // acc_y_angle = (atan2(acc_y_in, acc_z_in) + PI) * RAD_TO_DEG;
 
-  gyro_x_angle = acc_x_angle;
-  gyro_y_angle = acc_y_angle;
-  gyro_z_angle = 0;
+  // gyro_x_angle = acc_x_angle;
+  // gyro_y_angle = acc_y_angle;
+  // gyro_z_angle = 0;
 
-  // Angular rates provided by gyro (131 is number from datasheet, dunno)
-  gyro_x_rate = (float) gyro_x_in / 131.0;
-  gyro_y_rate = (float) gyro_y_in / 131.0;
-  x_rate = gyro_x_rate;
-  y_rate = gyro_y_rate;
+  // // Angular rates provided by gyro (131 is number from datasheet, dunno)
+  // gyro_x_rate = (float) gyro_x_in;// / 131.0;
+  // gyro_y_rate = (float) gyro_y_in;// / 131.0;
+  // x_rate = gyro_x_rate;
+  // y_rate = gyro_y_rate;
 
-  comp_angle_x = acc_x_angle;
-  comp_angle_y = acc_y_angle;
+  // comp_angle_x = acc_x_angle;
+  // comp_angle_y = acc_y_angle;
 }
 
 void IMU::reset() {
   // This does nothing ..
   Serial.println("RESETING");
-  mpu9050.resetSensors();
 }
