@@ -40,12 +40,12 @@ writeCmd(HMC_addr,HMC_mode_reg,HMC_contm_val);
 //-----end init HMC5883
 }
 
-void MPULib::getAxlData(int buff[]){
+void MPULib::getAxlData(int16_t *axl_x, int16_t *axl_y, int16_t *axl_z){
 byte buffer[6];
 readCmd(ADXL_addr,DATAX0,6,buffer);
-buff[0]=(buffer[1]<<8) | buffer[0];
-buff[1]=(buffer[3]<<8) | buffer[2];
-buff[2]=(buffer[5]<<8) | buffer[4];
+*axl_x=(buffer[1]<<8) | buffer[0];
+*axl_y=(buffer[3]<<8) | buffer[2];
+*axl_z=(buffer[5]<<8) | buffer[4];
 
 }
 

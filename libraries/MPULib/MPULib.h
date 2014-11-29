@@ -70,7 +70,7 @@ class MPULib
 public:
 MPULib();
 void init();
-void getAxlData(int buff[]);
+void getAxlData(int16_t *, int16_t *, int16_t *);
 void getGyroData(float *, float *, float *);
 void getMagData(int buff[]);
 private:

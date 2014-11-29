@@ -8,11 +8,8 @@ void IMU::init() {
   Wire.begin();
   TWBR = 10;  // setup i2c to run at 444 kHz
 
-  // Initialize device
-  Serial.println("Initializing I2C devices...");
+  Serial.println("Initializing MPU...");
   mpu.init();
-
-  // Check connection
 
   delay(100); // Wait for sensor to stabilize
 
@@ -67,7 +64,7 @@ void IMU::update_gyro() {
 }
 
 void IMU::update_accel() {
-  //mpu9050.getAcceleration(&acc_x_in, &acc_y_in, &acc_z_in);
+  mpu.getAxlData(&acc_x_in, &acc_y_in, &acc_z_in);
 
   float acc_x_filtered = filter_x.update(acc_x_in);
   float acc_y_filtered = filter_y.update(acc_y_in);
@@ -87,25 +84,24 @@ void IMU::combine() {
 }
 
 void IMU::setup_initial_angles() {
-  //mpu9050.getRotation(&gyro_x_in, &gyro_y_in, &gyro_z_in);
-  //gyro.getAngularVelocity(&gyro_x_in, &gyro_y_in, &gyro_z_in);
-  //mpu9050.getAcceleration(&acc_x_in, &acc_y_in, &acc_z_in);
+  mpu.getGyroData(&gyro_x_in, &gyro_y_in, &gyro_z_in);
+  mpu.getAxlData(&acc_x_in, &acc_y_in, &acc_z_in);
 
-  // acc_x_angle = (atan2(acc_x_in, acc_z_in) + PI) * RAD_TO_DEG;
-  // acc_y_angle = (atan2(acc_y_in, acc_z_in) + PI) * RAD_TO_DEG;
+  acc_x_angle = (atan2(acc_x_in, acc_z_in) + PI) * RAD_TO_DEG;
+  acc_y_angle = (atan2(acc_y_in, acc_z_in) + PI) * RAD_TO_DEG;
 
-  // gyro_x_angle = acc_x_angle;
-  // gyro_y_angle = acc_y_angle;
-  // gyro_z_angle = 0;
+  gyro_x_angle = acc_x_angle;
+  gyro_y_angle = acc_y_angle;
+  gyro_z_angle = 0;
 
-  // // Angular rates provided by gyro (131 is number from datasheet, dunno)
-  // gyro_x_rate = (float) gyro_x_in;// / 131.0;
-  // gyro_y_rate = (float) gyro_y_in;// / 131.0;
-  // x_rate = gyro_x_rate;
-  // y_rate = gyro_y_rate;
+  gyro_x_rate = gyro_x_in;
+  gyro_y_rate = gyro_y_in;
 
-  // comp_angle_x = acc_x_angle;
-  // comp_angle_y = acc_y_angle;
+  x_rate = gyro_x_rate;
+  y_rate = gyro_y_rate;
+
+  comp_angle_x = acc_x_angle;
+  comp_angle_y = acc_y_angle;
 }
 
 void IMU::reset() {

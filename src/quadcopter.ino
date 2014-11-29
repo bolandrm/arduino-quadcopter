@@ -39,12 +39,10 @@ void debug_output() {
 
   if (counter == 250) {
     Serial.print("loop_time (hz): "); Serial.print(1000000/loop_time);
-    //Serial.print("x_gyro: "); Serial.print(imu.gyro_x_rate);
     Serial.print("x_gyro: "); Serial.print(imu.x_rate);
-    //Serial.print(" \t y_gyro: "); Serial.print(imu.gyro_y_rate);
     Serial.print(" \t y_gyro: "); Serial.print(imu.y_rate);
-    //Serial.print(" \t x_ang: "); Serial.print(imu.x_angle);
-    //Serial.print(" \t y_ang "); Serial.print(imu.y_angle);
+    Serial.print(" \t x_ang: "); Serial.print(imu.x_angle);
+    Serial.print(" \t y_ang "); Serial.print(imu.y_angle);
   Serial.println();
     Serial.println();
     Serial.println();
