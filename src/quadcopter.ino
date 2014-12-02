@@ -16,15 +16,15 @@ void debug_output();
 
 void setup() {
   Serial.begin(SERIAL_PORT_SPEED);
-  //imu.init();
+  imu.init();
   bind_rc_interrupts();
-  //flight_controller.init(&rc, &imu);
+  flight_controller.init(&rc, &imu);
 }
 
 void loop() {
-  //while(!imu.update_sensor_values());
+  while(!imu.update_sensor_values());
   rc.read_values();
-  //flight_controller.process(counter == 240);
+  flight_controller.process(counter == 240);
   debug_output();
 }
 
@@ -32,7 +32,7 @@ void debug_output() {
   loop_time = micros() - loop_start_time;
   loop_start_time = micros();
 
-  if (counter == 750) {
+  if (counter == 250) {
     Serial.print("loop_time (hz): "); Serial.print(1000000/loop_time);
     Serial.print("x_gyro: "); Serial.print(imu.x_rate);
     Serial.print(" \t y_gyro: "); Serial.print(imu.y_rate);
