@@ -16,9 +16,9 @@ void FlightController::init(RemoteControl *_rc, IMU *_imu) {
   }
 
   roll_angle_pid.SetMode(AUTOMATIC);
-  roll_angle_pid.SetSampleTime(4);
+  roll_angle_pid.SetSampleTime(3);
   pitch_angle_pid.SetMode(AUTOMATIC);
-  pitch_angle_pid.SetSampleTime(4);
+  pitch_angle_pid.SetSampleTime(3);
 
   motors.init();
 }
@@ -67,8 +67,8 @@ void FlightController::adjust_for_bounds() {
 void FlightController::compute_motor_outputs() {
   double m1_r_out = rc->get(RC_THROTTLE) - pid_outputs[PID_ROLL_ANGLE];
   double m2_l_out = rc->get(RC_THROTTLE) + pid_outputs[PID_ROLL_ANGLE];
-  double m3_f_out = rc->get(RC_THROTTLE) + pid_outputs[PID_PITCH_ANGLE];
-  double m4_b_out = rc->get(RC_THROTTLE) - pid_outputs[PID_PITCH_ANGLE];
+  double m3_f_out = rc->get(RC_THROTTLE) - pid_outputs[PID_PITCH_ANGLE];
+  double m4_b_out = rc->get(RC_THROTTLE) + pid_outputs[PID_PITCH_ANGLE];
 
   motors.outputs[M1] = (int16_t)(m1_r_out + 0.5);
   motors.outputs[M2] = (int16_t)(m2_l_out + 0.5);
@@ -132,23 +132,33 @@ void FlightController::debug_output() {
   Serial.print(" \t y_gyro: "); Serial.print(imu->y_rate);
   Serial.print(" \t x_ang: "); Serial.print(imu->x_angle);
   Serial.print(" \t y_ang "); Serial.print(imu->y_angle);
+  Serial.print(" \t x_ang_raw: "); Serial.print(imu->acc_x_in);
+  Serial.print(" \t y_ang_raw: "); Serial.print(imu->acc_y_in);
+  Serial.print(" \t z_ang_raw "); Serial.print(imu->acc_z_in);
   Serial.println();
+
   Serial.print("thrttl: "); Serial.print(rc->get(RC_THROTTLE));
   Serial.print("\t x_tar: "); Serial.print(rc->get(RC_ROLL));
   Serial.print("\t y_tar: "); Serial.print(rc->get(RC_PITCH));
+  Serial.print("\t z_tar: "); Serial.print(rc->get(RC_YAW));
   Serial.print("\t pot_a: "); Serial.print(rc->get(RC_POT_A));
-  Serial.print("\t M1_out: "); Serial.print(motors.outputs[M1]);
+  Serial.print("\t pot_b: "); Serial.print(rc->get(RC_POT_B));
+  Serial.println();
+
+  Serial.print("M1_out: "); Serial.print(motors.outputs[M1]);
   Serial.print("\t M2_out: "); Serial.print(motors.outputs[M2]);
   Serial.print("\t M3_out: "); Serial.print(motors.outputs[M3]);
   Serial.print("\t M4_out: "); Serial.print(motors.outputs[M4]);
+  Serial.println();
+
+  Serial.print("roll_angle_pid: "); Serial.print(pid_outputs[PID_ROLL_ANGLE]);
+  Serial.print("\t pitch_angle_pid: "); Serial.print(pid_outputs[PID_PITCH_ANGLE]);
   Serial.print("\t <kp: "); Serial.print(pitch_angle_pid.GetKp(), 5);
   Serial.print("\t <ki: "); Serial.print(pitch_angle_pid.GetKi(), 5);
   Serial.print("\t <kd: "); Serial.print(pitch_angle_pid.GetKd(), 5);
   Serial.println();
-  Serial.print("\t roll_angle_pid: "); Serial.print(pid_outputs[PID_ROLL_ANGLE]);
-  Serial.print("\t pitch_angle_pid: "); Serial.print(pid_outputs[PID_PITCH_ANGLE]);
-  if (emergency_stopped) Serial.print("\t EMERGENCY STOPPED!");
-  Serial.println();
+
+  if (emergency_stopped) Serial.println("\t EMERGENCY STOPPED!");
 }
 
 void FlightController::set_pid_output_limits() {
@@ -158,7 +168,6 @@ void FlightController::set_pid_output_limits() {
 
 void FlightController::emergency_stop() {
   emergency_stopped = true;
-  imu->reset();
   motors.command_all_off();
 }
 
@@ -170,6 +179,11 @@ void FlightController::safety_check() {
   } else {
     gyro_freeze_counter = 0;
     last_gyro_value = imu->x_rate;
+  }
+
+  if (imu->x_angle > 45.0 || imu->x_angle < -45.0
+       || imu->y_angle > 45.0 || imu->y_angle < -45.0) {
+    emergency_stop();
   }
 
   for(int i = 0; i < NUM_MOTORS; i++) {
@@ -194,9 +208,9 @@ FlightController::FlightController() :
    roll_angle_pid(&pid_inputs[PID_ROLL_ANGLE],
                   &pid_outputs[PID_ROLL_ANGLE],
                   &pid_setpoints[PID_ROLL_ANGLE],
-                  0.977, 0.229, 0.0, REVERSE),
+                  0.0, 0.0, 0.0, REVERSE),
    pitch_angle_pid(&pid_inputs[PID_PITCH_ANGLE],
                    &pid_outputs[PID_PITCH_ANGLE],
                    &pid_setpoints[PID_PITCH_ANGLE],
-                   0.997, 0.229, 0.0, REVERSE)
+                   0.0, 0.0, 0.0, REVERSE)
 {}

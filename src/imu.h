@@ -8,21 +8,20 @@
 #include "MPULib.h"
 #include "calibrator.h"
 
-#define GYRO_PART 0.95
+#define GYRO_PART 0.99
 #define ACC_PART (1.0 - GYRO_PART)
 #define ALPHA 0.9
 #define GYRO_X_OFFSET 0.0;
 #define GYRO_Y_OFFSET 0.0;
 #define GYRO_Z_OFFSET 0.0;
-#define ACCEL_X_OFFSET -12;
-#define ACCEL_Y_OFFSET 0;
-#define ACCEL_Z_OFFSET 0;
+#define ACCEL_X_OFFSET 2;
+#define ACCEL_Y_OFFSET 8;
+#define ACCEL_Z_OFFSET 49;
 
 class IMU {
   public:
     void init();
     bool update_sensor_values();
-    void reset();
 
     float x_angle, y_angle, z_angle;
     float x_rate, y_rate, z_rate;

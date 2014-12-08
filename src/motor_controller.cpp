@@ -11,11 +11,6 @@
 #define M4_OUTPUT_REG OCR2A
 
 void MotorController::command() {
-  outputs[M1] = 2000;
-  outputs[M2] = 2000;
-  outputs[M3] = 1500;
-  outputs[M4] = 1500;
-
   #ifdef ALLOW_MOTORS
     M1_OUTPUT_REG = outputs[M1] / 16;
     M2_OUTPUT_REG = outputs[M2] * 2;

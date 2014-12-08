@@ -107,8 +107,3 @@ void IMU::setup_initial_angles() {
   comp_angle_x = acc_x_angle;
   comp_angle_y = acc_y_angle;
 }
-
-void IMU::reset() {
-  // This does nothing ..
-  Serial.println("RESETING");
-}
