@@ -1,6 +1,7 @@
 #ifndef flight_controller_h
 #define flight_controller_h
 
+#include "config.h"
 #include "remote_control.h"
 #include "imu.h"
 #include "motor_controller.h"
@@ -56,6 +57,8 @@ class FlightController {
     double pid_setpoints[NUM_PIDS];
     bool emergency_stopped;
     bool logging;
+    double roll_p_debug, roll_i_debug, roll_d_debug;
+    double pitch_p_debug, pitch_i_debug, pitch_d_debug;
 };
 
 #endif

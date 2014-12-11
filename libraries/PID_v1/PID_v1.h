@@ -31,6 +31,8 @@ class PID
 	
    void SetITermMax(double);
 
+   void SetDebugParams(double*, double*, double*);
+
 
   //available but not commonly used functions ********************************************************
     void SetTunings(double, double,       // * While most users will set the tunings once in the 
@@ -51,6 +53,10 @@ class PID
 	double GetKd();						  // where it's important to know what is actually 
 	int GetMode();						  //  inside the PID.
 	int GetDirection();					  //
+
+  double* pDebug;
+  double* iDebug;
+  double* dDebug;
 
   private:
    double ITermMax;

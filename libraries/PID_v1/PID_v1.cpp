@@ -37,7 +37,13 @@ PID::PID(double* Input, double* Output, double* Setpoint,
 
     lastTime = millis()-SampleTime;				
 }
- 
+
+void PID::SetDebugParams(double* pDebugIn, double* iDebugIn, double* dDebugIn) {
+  pDebug = pDebugIn;
+  iDebug = iDebugIn;
+  dDebug = dDebugIn;
+}
+
  void PID::SetITermMax(double iMax) {
    ITermMax = iMax;
  }
@@ -75,7 +81,15 @@ bool PID::Compute()
       double dInput = (input - lastInput);
  
       /*Compute PID Output*/
-      double output = kp * error + ITerm- kd * dInput;
+
+      double pTerm = kp * error;
+      double dTerm = -kd * dInput;
+
+      *pDebug = pTerm;
+      *iDebug = ITerm;
+      *dDebug = dTerm;
+
+      double output = pTerm + ITerm + dTerm;
       
 	  if(output > outMax) output = outMax;
       else if(output < outMin) output = outMin;
