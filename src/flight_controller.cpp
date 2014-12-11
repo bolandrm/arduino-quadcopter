@@ -135,11 +135,11 @@ void FlightController::debug_output() {
   if (CHART_DEBUG) {
     Serial.print(imu->gyro_x_rate);
     Serial.print(" ");
-    Serial.print(imu->acc_y_angle-180);
+    Serial.print(imu->acc_x_angle-180);
     Serial.print(" ");
-    Serial.print((imu->gyro_y_angle-180));
+    Serial.print((imu->gyro_x_angle-180));
     Serial.print(" ");
-    Serial.print(imu->y_angle);
+    Serial.print(imu->x_angle);
     Serial.print(" ");
     Serial.print(imu->x_rate);
     Serial.print(" ");

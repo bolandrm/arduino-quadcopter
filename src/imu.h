@@ -11,7 +11,8 @@
 
 #define GYRO_PART 0.985
 #define ACC_PART (1.0 - GYRO_PART)
-#define ALPHA 0.9
+#define GYRO_ALPHA 0.95
+#define ACC_ALPHA 0.9
 #define GYRO_X_OFFSET 0.0;
 #define GYRO_Y_OFFSET 0.0;
 #define GYRO_Z_OFFSET 0.0;
@@ -47,8 +48,7 @@ class IMU {
     float gyro_x_in, gyro_y_in, gyro_z_in;
 
     float comp_angle_x, comp_angle_y;
-    MedianFilter gyro_x_filter;
-    MedianFilter gyro_y_filter;
+    MedianFilter acc_x_filter, acc_y_filter, acc_z_filter;
 
     uint32_t gyro_update_timer, accel_update_timer, combination_update_timer;
     float gyro_x_offset, gyro_y_offset, gyro_z_offset;
