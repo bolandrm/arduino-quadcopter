@@ -52,8 +52,8 @@ readCmd(ADXL_addr,DATAX0,6,buffer);
 void MPULib::getGyroData(float *gyro_x, float *gyro_y, float *gyro_z){
 byte buffer[6];
 readCmd(L3G4_addr,READALLSIX,6,buffer);
-*gyro_y = (float)((int)(buffer[1]<<8) | buffer[0])*SCALE_2000;
-*gyro_x = (float)((int)(buffer[3]<<8) | buffer[2])*SCALE_2000;
+*gyro_x = (float)((int)(buffer[1]<<8) | buffer[0])*SCALE_2000;
+*gyro_y = (float)-1*((int)(buffer[3]<<8) | buffer[2])*SCALE_2000;
 *gyro_z = (float)((int)(buffer[5]<<8) | buffer[4])*SCALE_2000;
 }
 

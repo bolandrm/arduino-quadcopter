@@ -133,19 +133,25 @@ void FlightController::debug_output() {
   double error = pid_setpoints[PID_PITCH_ANGLE] - pid_inputs[PID_PITCH_ANGLE];
 
   if (CHART_DEBUG) {
-    //Serial.print(imu->y_angle);
-    Serial.print(error);
+    Serial.print(imu->gyro_x_rate);
     Serial.print(" ");
-    Serial.print(pid_outputs[PID_PITCH_ANGLE]);
+    Serial.print(imu->acc_y_angle-180);
     Serial.print(" ");
-    Serial.print(pitch_p_debug);
+    Serial.print((imu->gyro_y_angle-180));
     Serial.print(" ");
-    Serial.print(pitch_d_debug);
+    Serial.print(imu->y_angle);
     Serial.print(" ");
-    Serial.print(pitch_angle_pid.GetKp(), 5);
+    Serial.print(imu->x_rate);
     Serial.print(" ");
-    Serial.print(pitch_angle_pid.GetKd(), 5);
+    Serial.print(imu->x_angle);
     Serial.print("\r");
+
+    //Serial.print(error);
+    //Serial.print(pid_outputs[PID_PITCH_ANGLE]);
+    //Serial.print(pitch_p_debug);
+    //Serial.print(pitch_d_debug);
+    //Serial.print(pitch_angle_pid.GetKp(), 5);
+    //Serial.print(pitch_angle_pid.GetKd(), 5);
   } else {
     Serial.print("x_gyro: "); Serial.print(imu->x_rate);
     Serial.print(" \t y_gyro: "); Serial.print(imu->y_rate);

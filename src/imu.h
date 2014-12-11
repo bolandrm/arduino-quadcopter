@@ -7,8 +7,9 @@
 #include <Arduino.h>
 #include "MPULib.h"
 #include "calibrator.h"
+#include "MedianFilter.h"
 
-#define GYRO_PART 0.99
+#define GYRO_PART 0.985
 #define ACC_PART (1.0 - GYRO_PART)
 #define ALPHA 0.9
 #define GYRO_X_OFFSET 0.0;
@@ -20,6 +21,8 @@
 
 class IMU {
   public:
+    IMU();
+
     void init();
     bool update_sensor_values();
 
@@ -27,6 +30,10 @@ class IMU {
     float x_rate, y_rate, z_rate;
 
     int16_t acc_x_in, acc_y_in, acc_z_in;
+
+    float gyro_x_rate, gyro_y_rate, gyro_z_rate;
+    float gyro_x_angle, gyro_y_angle, gyro_z_angle;
+    float acc_x_angle, acc_y_angle;
 
   private:
     void setup_initial_angles();
@@ -39,13 +46,9 @@ class IMU {
 
     float gyro_x_in, gyro_y_in, gyro_z_in;
 
-    float acc_x_angle, acc_y_angle;
-    float gyro_x_angle, gyro_y_angle, gyro_z_angle;
     float comp_angle_x, comp_angle_y;
-
-    float gyro_x_rate;
-    float gyro_y_rate;
-    float gyro_z_rate;
+    MedianFilter gyro_x_filter;
+    MedianFilter gyro_y_filter;
 
     uint32_t gyro_update_timer, accel_update_timer, combination_update_timer;
     float gyro_x_offset, gyro_y_offset, gyro_z_offset;

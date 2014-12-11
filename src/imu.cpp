@@ -41,10 +41,6 @@ bool IMU::update_sensor_values() {
     x_angle = -1 * (comp_angle_x - 180);
     y_angle = comp_angle_y - 180;
     z_angle = gyro_z_angle;
-
-    x_rate = ALPHA * gyro_x_rate + (1-ALPHA) * x_rate;
-    y_rate = ALPHA * gyro_y_rate + (1-ALPHA) * y_rate;
-    z_rate = gyro_z_rate;
   }
 
   return updated;
@@ -57,10 +53,14 @@ void IMU::update_gyro() {
   gyro_y_rate = gyro_y_in + GYRO_Y_OFFSET;
   gyro_z_rate = gyro_z_in + GYRO_Z_OFFSET;
 
+  x_rate = ALPHA * gyro_x_filter.in(gyro_x_rate) + (1-ALPHA) * x_rate;
+  y_rate = ALPHA * gyro_y_filter.in(gyro_y_rate) + (1-ALPHA) * y_rate;
+  z_rate = gyro_z_rate;
+
   //Integration of gyro rates to get the angles
-  gyro_x_angle += gyro_x_rate * (float)(micros() - gyro_update_timer) / 1000000;
-  gyro_y_angle += gyro_y_rate * (float)(micros() - gyro_update_timer) / 1000000;
-  gyro_z_angle += gyro_z_rate * (float)(micros() - gyro_update_timer) / 1000000;
+  gyro_x_angle += x_rate * (float)(micros() - gyro_update_timer) / 1000000;
+  gyro_y_angle += y_rate * (float)(micros() - gyro_update_timer) / 1000000;
+  gyro_z_angle += z_rate * (float)(micros() - gyro_update_timer) / 1000000;
 }
 
 void IMU::update_accel() {
@@ -81,8 +81,8 @@ void IMU::update_accel() {
 void IMU::combine() {
   //Angle calculation through Complementary filter
   dt = (float)(micros()-combination_update_timer)/1000000.0;
-  comp_angle_x = GYRO_PART * (comp_angle_x + (gyro_x_rate * dt)) + ACC_PART * acc_x_angle;
-  comp_angle_y = GYRO_PART * (comp_angle_y + (gyro_y_rate * dt)) + ACC_PART * acc_y_angle;
+  comp_angle_x = GYRO_PART * (comp_angle_x + (x_rate * dt)) + ACC_PART * acc_x_angle;
+  comp_angle_y = GYRO_PART * (comp_angle_y + (y_rate * dt)) + ACC_PART * acc_y_angle;
 
   combination_update_timer = micros();
 }
@@ -107,3 +107,8 @@ void IMU::setup_initial_angles() {
   comp_angle_x = acc_x_angle;
   comp_angle_y = acc_y_angle;
 }
+
+IMU::IMU() :
+  gyro_x_filter(7, 1.0),
+  gyro_y_filter(7, 1.0)
+{}
