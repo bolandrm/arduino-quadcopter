@@ -131,13 +131,13 @@ void FlightController::compute_pids() {
 
 void FlightController::debug_output() {
   if (CHART_DEBUG) {
-    Serial.print(imu->x_rate);
+    Serial.print(rc->get(RC_PITCH));
     Serial.print(" ");
-    Serial.print(imu->acc_x_angle-180);
+    Serial.print(imu->y_rate);
     Serial.print(" ");
-    Serial.print((imu->gyro_x_angle-180));
+    Serial.print(pitch_p_debug);
     Serial.print(" ");
-    Serial.print(imu->x_angle);
+    Serial.print(pitch_i_debug);
     Serial.print(" ");
     Serial.print(imu->x_rate);
     Serial.print(" ");
@@ -231,9 +231,9 @@ FlightController::FlightController() :
    roll_rate_pid(&pid_inputs[PID_ROLL_RATE],
                   &pid_outputs[PID_ROLL_RATE],
                   &pid_setpoints[PID_ROLL_RATE],
-                  0.0, 0.0, 0.0, REVERSE),
+                  1.86, 0.51, 0.0, REVERSE),
    pitch_rate_pid(&pid_inputs[PID_PITCH_RATE],
                    &pid_outputs[PID_PITCH_RATE],
                    &pid_setpoints[PID_PITCH_RATE],
-                   0.0, 0.0, 0.0, REVERSE)
+                   1.86, 0.51, 0.0, REVERSE)
 {}

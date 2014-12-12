@@ -36,7 +36,7 @@ void loop() {
 }
 
 void set_debug() {
-  if (millis() - last_debug_time > 50) {
+  if (millis() - last_debug_time > DEBUG_RATE_MILLIS) {
     debug = true;
     last_debug_time = millis();
   }
