@@ -4,6 +4,7 @@ void FlightController::init(RemoteControl *_rc, IMU *_imu) {
   rc = _rc;
   imu = _imu;
 
+  mode = STABILIZE;
   safety_mode = UNARMED;
   emergency_stopped = false;
   gyro_freeze_counter = 0;
@@ -13,14 +14,34 @@ void FlightController::init(RemoteControl *_rc, IMU *_imu) {
     pid_inputs[i] = 0.0;
     pid_outputs[i] = 0.0;
     pid_setpoints[i] = 0.0;
+    pid_p_debugs[i] = 0.0;
+    pid_i_debugs[i] = 0.0;
+    pid_d_debugs[i] = 0.0;
   }
 
   roll_rate_pid.SetMode(AUTOMATIC);
-  roll_rate_pid.SetDebugParams(&roll_p_debug, &roll_i_debug, &roll_d_debug);
   roll_rate_pid.SetSampleTime(3);
+  roll_rate_pid.SetDebugParams(&pid_p_debugs[PID_ROLL_RATE],
+                               &pid_i_debugs[PID_ROLL_RATE],
+                               &pid_d_debugs[PID_ROLL_RATE]);
+
   pitch_rate_pid.SetMode(AUTOMATIC);
-  pitch_rate_pid.SetDebugParams(&pitch_p_debug, &pitch_i_debug, &pitch_d_debug);
   pitch_rate_pid.SetSampleTime(3);
+  pitch_rate_pid.SetDebugParams(&pid_p_debugs[PID_PITCH_RATE],
+                                &pid_i_debugs[PID_PITCH_RATE],
+                                &pid_d_debugs[PID_PITCH_RATE]);
+
+  roll_angle_pid.SetMode(AUTOMATIC);
+  roll_angle_pid.SetSampleTime(3);
+  roll_angle_pid.SetDebugParams(&pid_p_debugs[PID_ROLL_ANGLE],
+                                &pid_i_debugs[PID_ROLL_ANGLE],
+                                &pid_d_debugs[PID_ROLL_ANGLE]);
+
+  pitch_angle_pid.SetMode(AUTOMATIC);
+  pitch_angle_pid.SetSampleTime(3);
+  pitch_angle_pid.SetDebugParams(&pid_p_debugs[PID_PITCH_ANGLE],
+                                 &pid_i_debugs[PID_PITCH_ANGLE],
+                                 &pid_d_debugs[PID_PITCH_ANGLE]);
 
   motors.init();
 }
@@ -82,6 +103,8 @@ void FlightController::reset_pids() {
   // this will reset the I term to avoid windup
   roll_rate_pid.SetOutputLimits(0.0, 0.01);
   pitch_rate_pid.SetOutputLimits(0.0, 0.01);
+  roll_angle_pid.SetOutputLimits(0.0, 0.01);
+  pitch_angle_pid.SetOutputLimits(0.0, 0.01);
 }
 
 void FlightController::adjust_pid_tuning() {
@@ -118,15 +141,35 @@ void FlightController::adjust_pid_tuning() {
   pitch_rate_pid.SetTunings(kp, ki, kd);
 }
 
-void FlightController::compute_pids() {
-  pid_setpoints[PID_ROLL_RATE] = rc->get(RC_ROLL);
-  pid_setpoints[PID_PITCH_RATE] = rc->get(RC_PITCH);
+void FlightController::compute_angle_pids() {
+  pid_setpoints[PID_ROLL_ANGLE] = rc->get(RC_ROLL);
+  pid_setpoints[PID_PITCH_ANGLE] = rc->get(RC_PITCH);
+  pid_inputs[PID_ROLL_RATE] = imu->x_angle;
+  pid_inputs[PID_PITCH_RATE] = imu->y_angle;
 
+  roll_rate_pid.Compute();
+  pitch_rate_pid.Compute();
+}
+
+void FlightController::compute_rate_pids() {
   pid_inputs[PID_ROLL_RATE] = imu->x_rate;
   pid_inputs[PID_PITCH_RATE] = imu->y_rate;
 
   roll_rate_pid.Compute();
   pitch_rate_pid.Compute();
+}
+
+void FlightController::compute_pids() {
+  if (mode == STABILIZE) {
+    compute_angle_pids();
+    pid_setpoints[PID_ROLL_RATE] = pid_outputs[PID_ROLL_ANGLE];
+    pid_setpoints[PID_PITCH_RATE] = pid_outputs[PID_PITCH_ANGLE];
+  } else {
+    pid_setpoints[PID_ROLL_RATE] = rc->get(RC_ROLL);
+    pid_setpoints[PID_PITCH_RATE] = rc->get(RC_PITCH);
+  }
+
+  compute_rate_pids();
 }
 
 void FlightController::debug_output() {
@@ -135,20 +178,15 @@ void FlightController::debug_output() {
     Serial.print(" ");
     Serial.print(imu->y_rate);
     Serial.print(" ");
-    Serial.print(pitch_p_debug);
+    Serial.print(pid_p_debugs[PID_PITCH_RATE]);
     Serial.print(" ");
-    Serial.print(pitch_i_debug);
+    Serial.print(pid_i_debugs[PID_PITCH_RATE]);
     Serial.print(" ");
     Serial.print(imu->x_rate);
     Serial.print(" ");
     Serial.print(imu->x_angle);
     Serial.print("\r");
 
-    //Serial.print(pid_outputs[PID_PITCH_RATE]);
-    //Serial.print(pitch_p_debug);
-    //Serial.print(pitch_d_debug);
-    //Serial.print(pitch_angle_pid.GetKp(), 5);
-    //Serial.print(pitch_angle_pid.GetKd(), 5);
   } else {
     Serial.print("x_gyro: "); Serial.print(imu->x_rate);
     Serial.print(" \t y_gyro: "); Serial.print(imu->y_rate);
@@ -235,5 +273,13 @@ FlightController::FlightController() :
    pitch_rate_pid(&pid_inputs[PID_PITCH_RATE],
                    &pid_outputs[PID_PITCH_RATE],
                    &pid_setpoints[PID_PITCH_RATE],
-                   1.86, 0.51, 0.0, REVERSE)
+                   1.86, 0.51, 0.0, REVERSE),
+   roll_angle_pid(&pid_inputs[PID_ROLL_ANGLE],
+                  &pid_outputs[PID_ROLL_ANGLE],
+                  &pid_setpoints[PID_ROLL_ANGLE],
+                  0.0, 0.0, 0.0, REVERSE),
+   pitch_angle_pid(&pid_inputs[PID_PITCH_ANGLE],
+                  &pid_outputs[PID_PITCH_ANGLE],
+                  &pid_setpoints[PID_PITCH_ANGLE],
+                  0.0, 0.0, 0.0, REVERSE)
 {}
