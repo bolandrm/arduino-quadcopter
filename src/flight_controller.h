@@ -10,11 +10,12 @@
 #define RATE 0
 #define STABILIZE 1
 
-#define NUM_PIDS 4
+#define NUM_PIDS 5
 #define PID_ROLL_RATE 0
 #define PID_PITCH_RATE 1
-#define PID_ROLL_ANGLE 2
-#define PID_PITCH_ANGLE 3
+#define PID_YAW_RATE 2
+#define PID_ROLL_ANGLE 3
+#define PID_PITCH_ANGLE 4
 
 #define ARMED 1
 #define UNARMED 0
@@ -50,7 +51,8 @@ class FlightController {
 
     RemoteControl *rc;
     IMU *imu;
-    PID roll_rate_pid, pitch_rate_pid, roll_angle_pid, pitch_angle_pid;
+    PID roll_rate_pid, pitch_rate_pid, yaw_rate_pid,
+        roll_angle_pid, pitch_angle_pid;
     MotorController motors;
 
     uint16_t gyro_freeze_counter;

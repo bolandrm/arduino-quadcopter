@@ -55,7 +55,7 @@ void IMU::update_gyro() {
 
   x_rate = GYRO_ALPHA * gyro_x_rate + (1-GYRO_ALPHA) * x_rate;
   y_rate = GYRO_ALPHA * gyro_y_rate + (1-GYRO_ALPHA) * y_rate;
-  z_rate = gyro_z_rate;
+  z_rate = GYRO_ALPHA * gyro_z_rate + (1-GYRO_ALPHA) * z_rate;
 
   //Integration of gyro rates to get the angles
   gyro_x_angle += x_rate * (float)(micros() - gyro_update_timer) / 1000000;
@@ -70,9 +70,9 @@ void IMU::update_accel() {
   acc_y_in = acc_y_in + ACCEL_Y_OFFSET;
   acc_z_in = acc_z_in + ACCEL_Z_OFFSET;
 
-  float acc_x_filtered = ACC_ALPHA * acc_x_filter.in(acc_x_in) + (1-ACC_ALPHA) * acc_x_filtered;
-  float acc_y_filtered = ACC_ALPHA * acc_y_filter.in(acc_y_in) + (1-ACC_ALPHA) * acc_y_filtered;
-  float acc_z_filtered = ACC_ALPHA * acc_z_filter.in(acc_z_in) + (1-ACC_ALPHA) * acc_z_filtered;
+  acc_x_filtered = ACC_ALPHA * acc_x_filter.in(acc_x_in) + (1-ACC_ALPHA) * acc_x_filtered;
+  acc_y_filtered = ACC_ALPHA * acc_y_filter.in(acc_y_in) + (1-ACC_ALPHA) * acc_y_filtered;
+  acc_z_filtered = ACC_ALPHA * acc_z_filter.in(acc_z_in) + (1-ACC_ALPHA) * acc_z_filtered;
 
   acc_x_angle = (atan2(acc_x_filtered, acc_z_filtered) + PI) * RAD_TO_DEG;
   acc_y_angle = (atan2(acc_y_filtered, acc_z_filtered) + PI) * RAD_TO_DEG;

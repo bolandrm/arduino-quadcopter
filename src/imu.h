@@ -15,10 +15,10 @@
 #define ACC_ALPHA 0.9
 #define GYRO_X_OFFSET 0.0;
 #define GYRO_Y_OFFSET 0.0;
-#define GYRO_Z_OFFSET 0.0;
-#define ACCEL_X_OFFSET 2;
-#define ACCEL_Y_OFFSET 8;
-#define ACCEL_Z_OFFSET 49;
+#define GYRO_Z_OFFSET 0.40;
+#define ACCEL_X_OFFSET 6;
+#define ACCEL_Y_OFFSET 0;
+#define ACCEL_Z_OFFSET 42;  // Want 256 (1G)
 
 class IMU {
   public:
@@ -48,6 +48,7 @@ class IMU {
     float gyro_x_in, gyro_y_in, gyro_z_in;
 
     float comp_angle_x, comp_angle_y;
+    float acc_x_filtered, acc_y_filtered, acc_z_filtered;
     MedianFilter acc_x_filter, acc_y_filter, acc_z_filter;
 
     uint32_t gyro_update_timer, accel_update_timer, combination_update_timer;
