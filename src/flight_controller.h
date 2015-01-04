@@ -1,7 +1,6 @@
 #ifndef flight_controller_h
 #define flight_controller_h
 
-#include "config.h"
 #include "remote_control.h"
 #include "imu.h"
 #include "motor_controller.h"
@@ -26,12 +25,18 @@ class FlightController {
   public:
     FlightController();
 
-    void process(bool debug);
+    void process();
     void init(RemoteControl *, IMU *);
     void emergency_stop();
 
     int safety_mode;
     int mode;
+
+    PID roll_rate_pid, pitch_rate_pid, yaw_rate_pid,
+        roll_angle_pid, pitch_angle_pid;
+    MotorController motors;
+    double pid_outputs[NUM_PIDS];
+    bool emergency_stopped;
 
   private:
     void set_pid_output_limits();
@@ -51,19 +56,14 @@ class FlightController {
 
     RemoteControl *rc;
     IMU *imu;
-    PID roll_rate_pid, pitch_rate_pid, yaw_rate_pid,
-        roll_angle_pid, pitch_angle_pid;
-    MotorController motors;
 
     uint16_t gyro_freeze_counter;
     float last_gyro_value;
     double pid_inputs[NUM_PIDS];
-    double pid_outputs[NUM_PIDS];
     double pid_setpoints[NUM_PIDS];
     double pid_p_debugs[NUM_PIDS];
     double pid_i_debugs[NUM_PIDS];
     double pid_d_debugs[NUM_PIDS];
-    bool emergency_stopped;
     bool logging;
 };
 

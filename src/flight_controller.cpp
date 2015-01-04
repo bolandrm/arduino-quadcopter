@@ -8,7 +8,6 @@ void FlightController::init(RemoteControl *_rc, IMU *_imu) {
   safety_mode = UNARMED;
   emergency_stopped = false;
   gyro_freeze_counter = 0;
-  logging = false;
 
   for (int i = 0; i < NUM_PIDS; i++) {
     pid_inputs[i] = 0.0;
@@ -52,7 +51,7 @@ void FlightController::init(RemoteControl *_rc, IMU *_imu) {
   motors.init();
 }
 
-void FlightController::process(bool debug) {
+void FlightController::process() {
   set_safety_mode();
 
   set_pid_output_limits();
@@ -68,8 +67,6 @@ void FlightController::process(bool debug) {
 
   safety_check();
   motors.command();
-
-  if (debug) { debug_output(); }
 }
 
 void FlightController::adjust_for_bounds() {
@@ -203,78 +200,6 @@ void FlightController::compute_pids() {
 }
 
 void FlightController::debug_output() {
-  if (CHART_DEBUG) {
-    if (mode == RATE) {
-      Serial.print(rc->get(RC_PITCH));
-      Serial.print(" ");
-      Serial.print(imu->y_rate);
-      Serial.print(" ");
-      Serial.print(pitch_rate_pid.GetKp());
-      Serial.print(" ");
-      Serial.print(pitch_rate_pid.GetKi());
-      Serial.print(" ");
-      Serial.print(pitch_rate_pid.GetKd());
-      Serial.print(" ");
-      Serial.print(imu->x_angle);
-      Serial.print("\r");
-    } else {
-      Serial.print(rc->get(RC_PITCH));
-      Serial.print(" ");
-      Serial.print(imu->y_angle);
-      Serial.print(" ");
-      Serial.print(pitch_angle_pid.GetKp());
-      Serial.print(" ");
-      Serial.print(pitch_angle_pid.GetKi());
-      Serial.print(" ");
-      Serial.print(pitch_angle_pid.GetKd());
-      Serial.print(" ");
-      Serial.print(imu->x_angle);
-      Serial.print("\r");
-    }
-
-  } else {
-    Serial.print("x_gyro: "); Serial.print(imu->x_rate);
-    Serial.print(" \t y_gyro: "); Serial.print(imu->y_rate);
-    Serial.print(" \t z_gyro: "); Serial.print(imu->z_rate);
-    Serial.print(" \t x_ang: "); Serial.print(imu->x_angle);
-    Serial.print(" \t y_ang "); Serial.print(imu->y_angle);
-    Serial.print(" \t x_ang_raw: "); Serial.print(imu->acc_x_in);
-    Serial.print(" \t y_ang_raw: "); Serial.print(imu->acc_y_in);
-    Serial.print(" \t z_ang_raw "); Serial.print(imu->acc_z_in);
-    Serial.print(" \t z_gyro_raw "); Serial.print(imu->gyro_z_rate);
-    Serial.println();
-
-    Serial.print("thrttl: "); Serial.print(rc->get(RC_THROTTLE));
-    Serial.print("\t x_tar: "); Serial.print(rc->get(RC_ROLL));
-    Serial.print("\t y_tar: "); Serial.print(rc->get(RC_PITCH));
-    Serial.print("\t z_tar: "); Serial.print(rc->get(RC_YAW));
-    Serial.print("\t pot_a: "); Serial.print(rc->get(RC_POT_A));
-    Serial.print("\t pot_b: "); Serial.print(rc->get(RC_POT_B));
-    Serial.println();
-
-    Serial.print("M1_out: "); Serial.print(motors.outputs[M1]);
-    Serial.print("\t M2_out: "); Serial.print(motors.outputs[M2]);
-    Serial.print("\t M3_out: "); Serial.print(motors.outputs[M3]);
-    Serial.print("\t M4_out: "); Serial.print(motors.outputs[M4]);
-    Serial.println();
-
-    Serial.print("roll_rate_pid: "); Serial.print(pid_outputs[PID_ROLL_RATE]);
-    Serial.print("\t pitch_rate_pid: "); Serial.print(pid_outputs[PID_PITCH_RATE]);
-    Serial.print("\t yaw_rate_pid: "); Serial.print(pid_outputs[PID_YAW_RATE]);
-    Serial.print("\t <kp: "); Serial.print(pitch_rate_pid.GetKp(), 5);
-    Serial.print("\t <ki: "); Serial.print(pitch_rate_pid.GetKi(), 5);
-    Serial.print("\t <kd: "); Serial.print(pitch_rate_pid.GetKd(), 5);
-    Serial.println();
-
-    Serial.print("roll_angle_pid: "); Serial.print(pid_outputs[PID_ROLL_ANGLE]);
-    Serial.print("\t pitch_angle_pid: "); Serial.print(pid_outputs[PID_PITCH_ANGLE]);
-    Serial.print("\t <kp: "); Serial.print(pitch_angle_pid.GetKp(), 5);
-    Serial.print("\t <ki: "); Serial.print(pitch_angle_pid.GetKi(), 5);
-    Serial.print("\t <kd: "); Serial.print(pitch_angle_pid.GetKd(), 5);
-    Serial.println();
-
-    if (emergency_stopped) Serial.println("\t EMERGENCY STOPPED!");
-  }
 }
 
 void FlightController::set_pid_output_limits() {

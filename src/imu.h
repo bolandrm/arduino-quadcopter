@@ -6,7 +6,6 @@
 
 #include <Arduino.h>
 #include "MPULib.h"
-#include "calibrator.h"
 #include "MedianFilter.h"
 
 #define GYRO_PART 0.985
@@ -46,7 +45,6 @@ class IMU {
     void combine();
 
     MPULib mpu;
-    Calibrator calibrator;
 
     float gyro_x_in, gyro_y_in, gyro_z_in;
 
